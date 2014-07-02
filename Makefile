@@ -46,6 +46,7 @@ clear_mongo:
 
 # get a mongodb instance up for your unit tests (localhost:3334)
 mongo_test: kill_mongo_test
+	@mkdir -p /tmp/test-pkg/
 	@rm -rf /tmp/gandalf-client/mongotestdata && mkdir -p /tmp/gandalf-client/mongotestdata
 	@mongod --dbpath /tmp/test-pkg/mongotestdata --logpath /tmp/test-pkg/mongotestlog --port 3334 --quiet --fork
 	@echo 'waiting for mongo...'
