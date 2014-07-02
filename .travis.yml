@@ -5,11 +5,13 @@ python:
   - "3.4"
   - "pypy"
 
+before_install:
+    - sudo apt-add-repository ppa:tsuru/ppa -y
+    - sudo apt-get update -qq
+    - sudo apt-get install gandalf-server -qq
+
 install:
     # install python requirements
-    - sudo apt-add-repository ppa:tsuru/ppa
-    - sudo apt-get update
-    - sudo apt-get install gandalf-server
     - make setup
 
 script:
