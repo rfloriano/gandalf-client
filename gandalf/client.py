@@ -84,10 +84,10 @@ class GandalfClient(object):
             method="GET",
         )
 
-    def repository_delete(self, repo_name):
+    def repository_delete(self, name):
         # router.Del("/repository/:name", http.HandlerFunc(api.RemoveRepository))
         return self._request(
-            url='/repository/{0}'.format(repo_name.strip('/')),
+            url='/repository/{0}'.format(name.strip('/')),
             method="DELETE",
         )
 
@@ -121,10 +121,10 @@ class GandalfClient(object):
             data=json.dumps({'name': name, 'keys': keys})
         )
 
-    def user_delete(self, username):
+    def user_delete(self, name):
         # router.Del("/user/:name", http.HandlerFunc(api.RemoveUser))
         return self._request(
-            url='/user/{0}'.format(username),
+            url='/user/{0}'.format(name),
             method="DELETE",
         )
 
