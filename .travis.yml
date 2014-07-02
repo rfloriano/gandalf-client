@@ -7,8 +7,16 @@ python:
 
 install:
     # install python requirements
+    - sudo apt-add-repository ppa:tsuru/ppa
+    - sudo apt-get update
+    - sudo apt-get install gandalf-server
     - make setup
 
 script:
     # run tests
     - make test
+
+after_success:
+  - coveralls
+
+services: mongodb
