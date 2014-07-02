@@ -18,7 +18,10 @@ setup:
 	@pip install -U -e .\[tests\]
 
 # test your application (tests in the tests/ directory)
-test: mongo_test gandalf_test unit
+test: mongo_test gandalf_test unit doctest
+
+doctest:
+	@cd docs && make doctest
 
 unit:
 	@coverage run --branch `which nosetests` -vv --with-yanc -s tests/
@@ -64,5 +67,5 @@ kill_gandalf_test:
 tox:
 	@tox
 
-#docs:
-	#@cd gandalf_client/docs && make html && open _build/html/index.html
+update-docs:
+	@cd docs && make html && open _build/html/index.html
