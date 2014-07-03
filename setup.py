@@ -22,6 +22,10 @@ tests_require = [
     'ipdb',
     'coveralls',
     'sphinx',
+    'ujson',
+    'tornado',
+    'cow-framework',
+    'requests',
 ]
 
 setup(
@@ -49,9 +53,7 @@ an incredible python package
     ],
     packages=find_packages(),
     include_package_data=False,
-    install_requires=[
-        'requests',
-    ],
+    install_requires=[],
     extras_require={
         'tests': tests_require,
     },
