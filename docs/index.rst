@@ -6,7 +6,9 @@
 gandalf-client - a client for gandalf
 ========================================
 
-gandalf-client is a client for gandalf (https://github.com/tsuru/gandalf).
+gandalf-client is a Python client for gandalf (https://github.com/tsuru/gandalf).
+
+Github: https://github.com/rfloriano/gandalf-client
 
 .. image:: https://travis-ci.org/rfloriano/gandalf-client.svg?branch=master
     :target: https://travis-ci.org/rfloriano/gandalf-client
