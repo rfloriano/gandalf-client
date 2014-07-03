@@ -26,9 +26,10 @@ After you have it installed, let's use the gandalf, then:
 
 .. testcode:: getting_started
 
+   import requests
    from gandalf.client import GandalfClient
 
-   gandalf = GandalfClient("localhost", 8001)
+   gandalf = GandalfClient("localhost", 8001, requests.request)
    gandalf.user_new('rfloriano', {'my-ssh-key': 'content-of-my-ssh-public-key'})
 
 .. toctree::

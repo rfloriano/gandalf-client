@@ -3,8 +3,9 @@ Available Methods
 
 .. testsetup:: *
 
+   import requests
    from gandalf.client import GandalfClient
-   gandalf = GandalfClient("localhost", 8001)
+   gandalf = GandalfClient("localhost", 8001, requests.request)
 
 repository_new
 --------------
