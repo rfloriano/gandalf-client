@@ -8,4 +8,4 @@
 # http://www.opensource.org/licenses/MIT-license
 # Copyright (c) 2014 Rafael Floriano da Silva rflorianobr@gmail.com
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
