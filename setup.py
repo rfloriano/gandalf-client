@@ -22,7 +22,6 @@ tests_require = [
     'ipdb',
     'coveralls',
     'sphinx',
-    'ujson',
     'tornado',
     'cow-framework',
     'requests',

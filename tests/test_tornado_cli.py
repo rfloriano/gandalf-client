@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import uuid
 
-import ujson as json
+import json
 from preggy import expect
 from tornado.testing import gen_test
 
