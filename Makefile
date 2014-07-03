@@ -18,7 +18,9 @@ setup:
 	@pip install -U -e .\[tests\]
 
 # test your application (tests in the tests/ directory)
-test: mongo_test gandalf_test unit doctest
+test: services_test unit doctest
+
+services_test: mongo_test gandalf_test
 
 doctest:
 	@cd docs && make doctest
