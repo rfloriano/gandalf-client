@@ -1,5 +1,5 @@
-import client
 import tornado.gen as gen
+import gandalf.client as client
 
 
 class AsyncTornadoGandalfClient(client.GandalfClient):
