@@ -77,11 +77,13 @@ class TestTornadoGandalfClient(AsyncTestCase):
         response = yield self.gandalf.repository_grant([user2], [repo2])
         expect(response.code).to_equal(200)
 
-        # response = yield self.gandalf.repository_revoke([user2], [repo2])
-        # expect(response.code).to_equal(200)
-
         response = yield self.gandalf.repository_delete(repo2)
         expect(response.code).to_equal(200)
 
         yield self.gandalf.user_delete(user)
         yield self.gandalf.user_delete(user2)
+
+    @gen_test
+    def test_can_get_healthcheck(self):
+        response = yield self.gandalf.healthcheck()
+        expect(response).to_be_true()

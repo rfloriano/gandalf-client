@@ -73,4 +73,4 @@ class TestGandalfClient(TestCase):
 
     def test_can_get_healthcheck(self):
         response = self.gandalf.healthcheck()
-        expect(response.status_code).to_equal(200)
+        expect(response).to_be_true()
