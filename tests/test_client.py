@@ -70,3 +70,7 @@ class TestGandalfClient(TestCase):
 
         self.gandalf.user_delete(user)
         self.gandalf.user_delete(user2)
+
+    def test_can_get_healthcheck(self):
+        response = self.gandalf.healthcheck()
+        expect(response.status_code).to_equal(200)

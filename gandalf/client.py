@@ -127,3 +127,9 @@ class GandalfClient(object):
             method="POST",
             data=content
         )
+
+    def healthcheck(self):
+        return self._request(
+            url=self._get_url('/healthcheck'),
+            method="GET",
+        )
