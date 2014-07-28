@@ -149,3 +149,16 @@ class TestGandalfClient(TestCase):
             u'hash': u'cb508ee85be1e116233ae7c18e2d9bcc9553d209',
             u'permission': u'100644'
         })
+
+    def test_can_get_repository_contents(self):
+        repo = str(uuid.uuid4())
+        create_repository(repo)
+        add_file_to_repo(repo, 'some/path/doge.txt', 'FOO BAR')
+        tag_repo(repo, '0.1.0')
+        add_file_to_repo(repo, 'some/path/doge.txt', 'OTHER TEST')
+
+        content = self.gandalf.repository_contents(repo, 'some/path/doge.txt', '0.1.0')
+        expect(content).to_equal('FOO BAR\n')
+
+        content = self.gandalf.repository_contents(repo, 'some/path/doge.txt')
+        expect(content).to_equal('OTHER TEST\n')

@@ -124,12 +124,17 @@ class GandalfClient(object):
             method="GET",
         )
 
-    def repository_contents(self, name, path):
-        # router.Get("/repository/:name/contents/:path", http.HandlerFunc(api.GetFileContents))
-        return self._request(
-            url=self._get_url('/repository/{0}/contents/{1}'.format(name, path)),
+    def repository_contents(self, name, path, ref='master'):
+        # router.Get("/repository/:name/contents", http.HandlerFunc(api.GetFileContents))
+        request = self._request(
+            url=self._get_url('/repository/{0}/contents?path={1}&ref={2}'.format(name, path, ref)),
             method="GET",
         )
+
+        if request.status_code != 200:
+            raise RuntimeError(request.text)
+
+        return request.text
 
     def repository_delete(self, name):
         # router.Del("/repository/:name", http.HandlerFunc(api.RemoveRepository))
@@ -184,6 +189,7 @@ class GandalfClient(object):
         )
 
     def healthcheck(self):
+        # router.Get("/healthcheck/", http.HandlerFunc(api.HealthCheck))
         response = self._request(
             url=self._get_url('/healthcheck'),
             method="GET",
@@ -199,3 +205,7 @@ class GandalfClient(object):
             return response.text == 'WORKING'
 
         return False
+
+    # TODO: needs to implement methods for these server routes
+    # router.Get("/repository/:name/branch", http.HandlerFunc(api.GetBranch))
+    # router.Get("/repository/:name/tag", http.HandlerFunc(api.GetTag))
