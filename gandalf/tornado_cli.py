@@ -13,3 +13,21 @@ class AsyncTornadoGandalfClient(client.GandalfClient):
 
         response = yield self.client(url, *args, **kwargs)
         raise gen.Return(response)
+
+    @gen.coroutine
+    def healthcheck(self):
+        response = yield self._request(
+            url=self._get_url('/healthcheck'),
+            method="GET",
+        )
+
+        if response.code != 200:
+            raise gen.Return(False)
+
+        if hasattr(response, 'body'):
+            raise gen.Return(response.body == 'WORKING')
+
+        if hasattr(response, 'text'):
+            raise gen.Return(response.text == 'WORKING')
+
+        raise gen.Return(False)
