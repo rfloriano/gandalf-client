@@ -7,6 +7,15 @@ Available Methods
    from gandalf.client import GandalfClient
    gandalf = GandalfClient("localhost", 8001, requests.request)
 
+.. testsetup:: repository_tree
+
+   from tests.utils import create_repository, add_file_to_repo, tag_repo
+   create_repository('tree-test')
+   add_file_to_repo('tree-test', 'some/path/file.txt', 'file-content')
+   tag_repo('tree-test', '0.1.0')
+   add_file_to_repo('tree-test', 'some/path/other.txt', 'other-file-content')
+
+
 repository_new
 --------------
 
@@ -24,21 +33,9 @@ Example:
 
    gandalf.repository_new('my-project-repository', ['rfloriano'])
 
-repository_get
---------------
+.. automethod:: gandalf.client.GandalfClient.repository_get
 
-Get repository data
-
-Arguments:
-
-* name: The repository's name
-
-Example:
-
-.. testcode:: repository_get
-
-   gandalf.repository_get('my-project-repository')
-
+.. automethod:: gandalf.client.GandalfClient.repository_tree
 
 repository_rename
 -----------------

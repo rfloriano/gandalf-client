@@ -70,5 +70,8 @@ kill_gandalf_test:
 tox:
 	@tox
 
+clean-docs:
+	@cd docs && make clean
+
 update-docs:
 	@cd docs && make html && open _build/html/index.html

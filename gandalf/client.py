@@ -32,6 +32,19 @@ class GandalfClient(object):
         )
 
     def repository_get(self, name):
+        '''
+        Gets information on the specified repository.
+
+        :param name: repository name
+        :return: Information on the specified repository.
+
+        Usage:
+
+        .. testcode:: repository_get
+
+           gandalf.repository_get('my-project-repository')
+        '''
+
         # router.Get("/repository/:name", http.HandlerFunc(api.GetRepository))
         return self._request(
             url=self._get_url('/repository/{0}'.format(name)),
@@ -39,6 +52,31 @@ class GandalfClient(object):
         )
 
     def repository_tree(self, name, path='', ref='master'):
+        '''
+        Returns a list of all tracked files in the specified path in the given repository.
+        If ref is specified, that revision is used instead of the master branch.
+
+        :param name: repository name
+        :param path: optional argument that specifies the root node of the tree
+        :param ref: optional argument that specifies the ref you want to retrieve the tree for
+        :type ref: tag, branch or commit
+        :return: A list of objects found in the given repository
+        :raises: RuntimeError if gandalf response status code is not 200
+
+        Usage:
+
+        .. doctest:: repository_tree
+
+           >>> result = gandalf.repository_tree('tree-test', path='/some/path', ref='0.1.0')
+           >>> result == [{
+           ...     u'rawPath': u'some/path/file.txt',
+           ...     u'path': u'some/path/file.txt',
+           ...     u'filetype': u'blob',
+           ...     u'hash': u'deb02c1a0de2ce994ccc4c88155764aeeb7fc4a6',
+           ...     u'permission': u'100644'
+           ... }]
+           True
+        '''
         # router.Get("/repository/:name/tree/:path", http.HandlerFunc(api.GetTree))
         path = path.lstrip('/')
         if path != '':
