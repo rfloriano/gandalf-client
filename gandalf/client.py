@@ -1,6 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import sys
+import logging
+
 try:
     import ujson as json
 except ImportError:
@@ -24,13 +27,42 @@ class GandalfClient(object):
     def _request(self, *args, **kwargs):
         return self.client(*args, **kwargs)
 
-    def repository_new(self, name, users, ispublic=False):
+    def repository_new(self, name, users, is_public=False):
+        '''
+        Creates a new repository with the given name.
+
+        :param name: repository name
+        :param users: list of usernames that have write access to this repository
+        :type users: list of strings
+        :param is_public: indicates whether this repository should be readable for everyone or not.
+        :type is_public: boolean flag
+        :return: True if repository was created, False otherwise
+
+        Usage:
+
+        .. doctest:: repository_new
+
+           >>> gandalf.repository_new(repo_name, users=['rfloriano'], is_public=True)
+           True
+        '''
+
         # router.Post("/repository", http.HandlerFunc(api.NewRepository))
-        return self._request(
-            url=self._get_url('/repository'),
-            method="POST",
-            data=json.dumps({'name': name, 'users': users, 'ispublic': ispublic})
-        )
+        try:
+            response = self._request(
+                url=self._get_url('/repository'),
+                method="POST",
+                data=json.dumps({'name': name, 'users': users, 'ispublic': is_public})
+            )
+            if response.status_code == 200:
+                return True
+
+        except Exception:
+            err = sys.exc_info()[1]
+            logging.exception(err)
+            return False
+
+        logging.error("Could not create repository %s." % name)
+        return False
 
     def repository_get(self, name):
         '''
@@ -41,16 +73,30 @@ class GandalfClient(object):
 
         Usage:
 
-        .. testcode:: repository_get
+        .. doctest:: repository_get
 
-           gandalf.repository_get('my-project-repository')
+           >>> result = gandalf.repository_get(repo_name)
+           >>> result == {
+           ...     u'public': True,
+           ...     u'ssh_url': u'git@localhost:8001:%s.git' % repo_name,
+           ...     u'git_url': u'git://localhost:8001/%s.git' % repo_name,
+           ...     u'name': repo_name
+           ... }
+           True
         '''
 
         # router.Get("/repository/:name", http.HandlerFunc(api.GetRepository))
-        return self._request(
+        response = self._request(
             url=self._get_url('/repository/{0}'.format(name)),
             method="GET",
         )
+
+        if response.status_code != 200:
+            raise RuntimeError("Could not retrieve repository information. Status: %s. Error: %s" % (
+                response.status_code, response.text)
+            )
+
+        return json.loads(response.text)
 
     def repository_tree(self, name, path='', ref='master'):
         '''
@@ -90,7 +136,9 @@ class GandalfClient(object):
         )
 
         if response.status_code != 200:
-            raise RuntimeError("Could not retrieve tree. Status: %s. Error: %s" % (response.status_code, response.text))
+            raise RuntimeError("Could not retrieve tree. Status: %s. Error: %s" % (
+                response.status_code, response.text
+            ))
 
         return json.loads(response.text)
 

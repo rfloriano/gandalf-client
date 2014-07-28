@@ -77,10 +77,13 @@ class TestTornadoGandalfClient(AsyncTestCase):
         yield self.gandalf.user_new(user2, {})
 
         response = yield self.gandalf.repository_new(repo, [user])
-        expect(response.code).to_equal(200)
+        expect(response).to_be_true()
 
         response = yield self.gandalf.repository_get(repo)
-        expect(response.code).to_equal(200)
+        expect(response).to_include('git_url')
+        expect(response).to_include('ssh_url')
+        expect(response).to_include('name')
+        expect(response).to_include('public')
 
         response = yield self.gandalf.repository_rename(repo, repo2)
         expect(response.code).to_equal(200)
