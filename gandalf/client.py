@@ -50,7 +50,7 @@ class GandalfClient(object):
         )
 
         if response.status_code != 200:
-            raise RuntimeError("Could not retrieve tree. Status: %s. Error: %s" % (response.code, response.txt))
+            raise RuntimeError("Could not retrieve tree. Status: %s. Error: %s" % (response.status_code, response.txt))
 
         return json.loads(response.text)
 
