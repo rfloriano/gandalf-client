@@ -38,6 +38,22 @@ class GandalfClient(object):
             method="GET",
         )
 
+    def repository_tree(self, name, path=''):
+        # router.Get("/repository/:name/tree/:path", http.HandlerFunc(api.GetTree))
+        path = path.lstrip('/')
+        if path != '':
+            path = "/%s" % path
+
+        response = self._request(
+            url=self._get_url('/repository/{0}/tree{1}'.format(name, path)),
+            method="GET",
+        )
+
+        if response.status_code != 200:
+            raise RuntimeError("Could not retrieve tree. Status: %s. Error: %s" % (response.code, response.txt))
+
+        return json.loads(response.text)
+
     def repository_rename(self, old_name, new_name):
         # router.Put("/repository/:name", http.HandlerFunc(api.RenameRepository))
         return self._request(
