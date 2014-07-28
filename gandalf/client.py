@@ -38,14 +38,15 @@ class GandalfClient(object):
             method="GET",
         )
 
-    def repository_tree(self, name, path=''):
+    def repository_tree(self, name, path='', ref='master'):
         # router.Get("/repository/:name/tree/:path", http.HandlerFunc(api.GetTree))
         path = path.lstrip('/')
         if path != '':
-            path = "/%s" % path
+            path = "&path=%s" % path
 
+        url = self._get_url('/repository/{0}/tree?ref={1}{2}'.format(name, ref, path))
         response = self._request(
-            url=self._get_url('/repository/{0}/tree{1}'.format(name, path)),
+            url=url,
             method="GET",
         )
 

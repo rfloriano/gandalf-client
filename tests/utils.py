@@ -28,3 +28,11 @@ def add_file_to_repo(repo, path, contents):
         path,
         path
     ))
+
+
+def tag_repo(repo, tag):
+    repo_name = '%s.git' % repo
+    os.system('cd %s/%s && git tag %s' % (
+        ROOT, repo_name,
+        tag
+    ))
