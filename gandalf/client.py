@@ -127,3 +127,20 @@ class GandalfClient(object):
             method="POST",
             data=content
         )
+
+    def healthcheck(self):
+        response = self._request(
+            url=self._get_url('/healthcheck'),
+            method="GET",
+        )
+
+        if response.status_code != 200:
+            return False
+
+        if hasattr(response, 'body'):
+            return response.body == 'WORKING'
+
+        if hasattr(response, 'text'):
+            return response.text == 'WORKING'
+
+        return False

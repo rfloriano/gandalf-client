@@ -216,3 +216,14 @@ Arguments:
 
 * name: The hook's name
 * content: Content of hook
+
+healthcheck
+-----------
+
+Validates if the gandalf server responds to healthcheck.
+
+Example:
+
+.. testcode:: healthcheck
+
+   assert gandalf.healthcheck()
