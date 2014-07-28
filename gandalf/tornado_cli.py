@@ -25,7 +25,7 @@ class AsyncTornadoGandalfClient(client.GandalfClient):
             raise gen.Return(False)
 
         if hasattr(response, 'body'):
-            raise gen.Return(response.body == 'WORKING')
+            raise gen.Return(response.body.decode('utf-8') == 'WORKING')
 
         if hasattr(response, 'text'):
             raise gen.Return(response.text == 'WORKING')

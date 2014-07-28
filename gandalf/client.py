@@ -154,7 +154,7 @@ class GandalfClient(object):
             return False
 
         if hasattr(response, 'body'):
-            return response.body == 'WORKING'
+            return response.body.decode('utf-8') == 'WORKING'
 
         if hasattr(response, 'text'):
             return response.text == 'WORKING'
