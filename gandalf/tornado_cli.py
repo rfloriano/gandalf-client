@@ -1,4 +1,14 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+try:
+    import ujson as json
+except ImportError:
+    import json
+
+
 import tornado.gen as gen
+
 import gandalf.client as client
 
 
@@ -31,3 +41,22 @@ class AsyncTornadoGandalfClient(client.GandalfClient):
             raise gen.Return(response.text == 'WORKING')
 
         raise gen.Return(False)
+
+    @gen.coroutine
+    def repository_tree(self, name, path='', ref='master'):
+        # router.Get("/repository/:name/tree/:path", http.HandlerFunc(api.GetTree))
+        path = path.lstrip('/')
+        if path != '':
+            path = "&path=%s" % path
+
+        url = self._get_url('/repository/{0}/tree?ref={1}{2}'.format(name, ref, path))
+
+        response = yield self._request(
+            url=url,
+            method="GET",
+        )
+
+        if response.code != 200:
+            raise RuntimeError("Could not retrieve tree. Status: %s. Error: %s" % (response.code, response.body))
+
+        raise gen.Return(json.loads(response.body))
