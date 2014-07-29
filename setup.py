@@ -15,6 +15,7 @@ from gandalf.version import __version__
 tests_require = [
     'mock',
     'nose',
+    'nose-focus',
     'coverage',
     'yanc',
     'preggy',
@@ -25,6 +26,7 @@ tests_require = [
     'tornado',
     'cow-framework',
     'requests',
+    'pycrypto',
 ]
 
 setup(

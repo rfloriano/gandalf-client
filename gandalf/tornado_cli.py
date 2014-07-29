@@ -11,6 +11,7 @@ except ImportError:
 
 
 import tornado.gen as gen
+import tornado.httpclient
 
 import gandalf.client as client
 
@@ -56,7 +57,7 @@ class AsyncTornadoGandalfClient(client.GandalfClient):
             )
             if response.code == 200:
                 raise gen.Return(True)
-        except Exception:
+        except tornado.httpclient.HTTPError:
             err = sys.exc_info()[1]
             logging.exception(err)
 
@@ -109,3 +110,23 @@ class AsyncTornadoGandalfClient(client.GandalfClient):
             raise RuntimeError("Could not retrieve tree. Status: %s. Error: %s" % (response.code, response.body))
 
         raise gen.Return(json.loads(response.body))
+
+    @gen.coroutine
+    def user_new(self, name, keys):
+        # router.Post("/user", http.HandlerFunc(api.NewUser))
+        try:
+            response = yield self._request(
+                url=self._get_url('/user'),
+                method="POST",
+                data=json.dumps({'name': name, 'keys': keys})
+            )
+
+            if response.code != 200:
+                raise gen.Return(False)
+
+        except Exception:
+            err = sys.exc_info()[1]
+            logging.exception(err)
+            raise gen.Return(False)
+
+        raise gen.Return(True)
