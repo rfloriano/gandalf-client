@@ -36,3 +36,11 @@ def tag_repo(repo, tag):
         ROOT, repo_name,
         tag
     ))
+
+
+def branch_repo(repo, tag):
+    repo_name = '%s.git' % repo
+    os.system('cd %s/%s && git branch %s &> /dev/null' % (
+        ROOT, repo_name,
+        tag
+    ))
