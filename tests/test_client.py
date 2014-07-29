@@ -18,6 +18,7 @@ from tests.utils import create_repository, add_file_to_repo, tag_repo
 
 
 TMP_DIR = tempfile.gettempdir()
+HOOKS_DIR = '/tmp/git/bare-template/hooks'
 
 get_key = lambda: RSA.generate(2048, os.urandom).exportKey('OpenSSH')
 
@@ -238,3 +239,26 @@ class TestGandalfClient(TestCase):
         content = archive.read()
         archive.close()
         expect(content).to_equal('FOO BAR\n')
+
+    def test_can_add_hook(self):
+        repo = str(uuid.uuid4())
+        create_repository(repo)
+        add_file_to_repo(repo, 'some/path/doge.txt', 'FOO BAR')
+
+        self.gandalf.hook_add('post-receive', repo)
+        archive = file(os.path.join(HOOKS_DIR, 'post-receive'), 'r')
+        content = archive.read()
+        archive.close()
+        expect(content).to_equal(repo)
+
+        self.gandalf.hook_add('pre-receive', repo)
+        archive = file(os.path.join(HOOKS_DIR, 'pre-receive'), 'r')
+        content = archive.read()
+        archive.close()
+        expect(content).to_equal(repo)
+
+        self.gandalf.hook_add('update', repo)
+        archive = file(os.path.join(HOOKS_DIR, 'update'), 'r')
+        content = archive.read()
+        archive.close()
+        expect(content).to_equal(repo)
