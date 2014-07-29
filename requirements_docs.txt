@@ -13,7 +13,7 @@ cow-framework==1.0.4
 derpconf==0.6.0
 docopt==0.6.2
 docutils==0.11
--e git+https://github.com/rfloriano/gandalf-client.git#egg=gandalf_client-master
+https://github.com/rfloriano/gandalf-client/archive/master.zip
 gnureadline==6.3.3
 ipdb==0.8
 ipython==2.1.0
