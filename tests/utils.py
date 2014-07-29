@@ -14,14 +14,14 @@ def create_repository(name):
     if exists(repo_path):
         shutil.rmtree(repo_path)
 
-    os.system('cd %s && mkdir %s && cd %s && git init && touch README && git add . && git commit -am "Initial commit"' % (
+    os.system('cd %s && mkdir %s && cd %s && git init &> /dev/null && touch README && git add . &> /dev/null && git commit -am "Initial commit" &> /dev/null' % (
         ROOT, repo_name, repo_name
     ))
 
 
 def add_file_to_repo(repo, path, contents):
     repo_name = '%s.git' % repo
-    os.system('cd %s/%s && mkdir -p %s && echo "%s" > %s && git add . && git commit -am "%s"' % (
+    os.system('cd %s/%s && mkdir -p %s && echo "%s" > %s && git add . &> /dev/null && git commit -am "%s" &> /dev/null' % (
         ROOT, repo_name,
         dirname(path),
         contents,
@@ -32,7 +32,7 @@ def add_file_to_repo(repo, path, contents):
 
 def tag_repo(repo, tag):
     repo_name = '%s.git' % repo
-    os.system('cd %s/%s && git tag %s' % (
+    os.system('cd %s/%s && git tag %s &> /dev/null' % (
         ROOT, repo_name,
         tag
     ))
