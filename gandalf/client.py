@@ -45,7 +45,7 @@ class GandalfClient(object):
            >>> gandalf.repository_new(repo_name, users=['rfloriano'], is_public=True)
            True
         '''
-
+        # TODO: needs to validate if repository has some user
         # router.Post("/repository", http.HandlerFunc(api.NewRepository))
         try:
             response = self._request(
@@ -166,10 +166,10 @@ class GandalfClient(object):
             data=json.dumps({'users': users, 'repositories': repositories})
         )
 
-    def repository_archive(self, name, ref, format):
-        # router.Get("/repository/:name/archive/:ref.:format", http.HandlerFunc(api.GetArchive))
+    def repository_archive(self, name, ref, format='zip'):
+        # router.Get("/repository/:name/archive", http.HandlerFunc(api.GetArchive))
         return self._request(
-            url=self._get_url('/repository/{0}/archive/{1}.{2}'.format(name, ref, format)),
+            url=self._get_url('/repository/{0}/archive?ref={1}&format={2}'.format(name, ref, format)),
             method="GET",
         )
 

@@ -3,6 +3,10 @@
 
 import uuid
 import os
+import StringIO
+import tarfile
+import zipfile
+import tempfile
 
 from preggy import expect
 import requests
@@ -12,6 +16,8 @@ import gandalf.client as client
 from tests.base import TestCase
 from tests.utils import create_repository, add_file_to_repo, tag_repo
 
+
+TMP_DIR = tempfile.gettempdir()
 
 get_key = lambda: RSA.generate(2048, os.urandom).exportKey('OpenSSH')
 
@@ -209,3 +215,26 @@ class TestGandalfClient(TestCase):
 
         content = self.gandalf.repository_contents(repo, 'some/path/doge.txt')
         expect(content).to_equal('OTHER TEST\n')
+
+    def test_can_get_repository_archive(self):
+        repo = str(uuid.uuid4())
+        create_repository(repo)
+        add_file_to_repo(repo, 'some/path/doge.txt', 'FOO BAR')
+        tag_repo(repo, '0.1.0')
+        add_file_to_repo(repo, 'some/path/doge.txt', 'OTHER TEST')
+
+        file_ = self.gandalf.repository_archive(repo, 'master', 'tar')
+        tar = tarfile.TarFile(fileobj=StringIO.StringIO(file_.content))
+        tar.extract('{0}-master/some/path/doge.txt'.format(repo), TMP_DIR)
+        archive = file(os.path.join(TMP_DIR, '{0}-master/some/path/doge.txt'.format(repo)), 'r')
+        content = archive.read()
+        archive.close()
+        expect(content).to_equal('OTHER TEST\n')
+
+        file_ = self.gandalf.repository_archive(repo, '0.1.0')
+        zip_ = zipfile.ZipFile(StringIO.StringIO(file_.content))
+        zip_.extract('{0}-0.1.0/some/path/doge.txt'.format(repo), TMP_DIR)
+        archive = file(os.path.join(TMP_DIR, '{0}-0.1.0/some/path/doge.txt'.format(repo)), 'r')
+        content = archive.read()
+        archive.close()
+        expect(content).to_equal('FOO BAR\n')
