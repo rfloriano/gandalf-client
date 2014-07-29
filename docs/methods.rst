@@ -1,4 +1,5 @@
 .. py:module:: gandalf.client
+.. py:class:: GandalfClient
 
 Available Methods
 =================
