@@ -215,12 +215,41 @@ class GandalfClient(object):
         )
 
     def user_new(self, name, keys):
+        '''
+        Creates a new user. SSH Keys for this user may be specified.
+
+        :param name: user name
+        :param keys: Named ssh keys that will be bound to this user
+        :type keys: dict where key is SSH Key name and value is the SSH Public Key
+        :return: True if user was created, False otherwise
+
+        Usage:
+
+        .. doctest:: user_new
+
+           >>> gandalf.user_new(user_name, keys={
+           ...    'default': my_ssh_public_key
+           ... })
+           True
+        '''
+
         # router.Post("/user", http.HandlerFunc(api.NewUser))
-        return self._request(
-            url=self._get_url('/user'),
-            method="POST",
-            data=json.dumps({'name': name, 'keys': keys})
-        )
+        try:
+            response = self._request(
+                url=self._get_url('/user'),
+                method="POST",
+                data=json.dumps({'name': name, 'keys': keys})
+            )
+
+            if response.status_code != 200:
+                return False
+
+        except Exception:
+            err = sys.exc_info()[1]
+            logging.exception(err)
+            return False
+
+        return True
 
     def user_delete(self, name):
         # router.Del("/user/:name", http.HandlerFunc(api.RemoveUser))

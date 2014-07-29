@@ -12,7 +12,6 @@ list:
 # required for list
 no_targets__:
 
-
 # install all dependencies (do not forget to create a virtualenv first)
 setup:
 	@pip install -U -e .\[tests\]
@@ -28,6 +27,9 @@ doctest:
 unit:
 	@coverage run --branch `which nosetests` -vv --with-yanc -s tests/
 	@coverage report -m --fail-under=80
+
+focus:
+	@coverage run --branch `which nosetests` -vv --with-yanc --logging-level=WARNING --with-focus -s tests/
 
 # show coverage in html format
 coverage-html: unit

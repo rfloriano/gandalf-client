@@ -29,6 +29,20 @@ Available Methods
 
    repo_name = "newtest_%s" % uuid4()
 
+.. testsetup:: user_new
+
+   import os
+   import requests
+   from uuid import uuid4
+   from gandalf.client import GandalfClient
+   from tests.utils import create_repository, add_file_to_repo, tag_repo
+   from Crypto.PublicKey import RSA
+
+   gandalf = GandalfClient("localhost", 8001, requests.request)
+
+   user_name = "user_%s" % uuid4()
+   my_ssh_public_key = RSA.generate(2048, os.urandom).exportKey('OpenSSH')
+
 .. testsetup:: repository_get
 
    import requests
@@ -180,22 +194,7 @@ Example:
 
    gandalf.user_delete_key('rfloriano', 'my-ssh-key-another')
 
-user_new
---------
-
-Create an new user
-
-Arguments:
-
-* name: The username
-* keys: Dictionary of public key to associate with user account (Ie: {'macbook-key': 'ssh-dss my-public-key== f@foo.bar'})
-
-Example:
-
-.. testcode:: user_new
-
-   gandalf.user_new('rfloriano', {'my-ssh-key': 'content-of-my-ssh-public-key'})
-
+.. automethod:: gandalf.client.GandalfClient.user_new
 
 user_delete
 -----------
