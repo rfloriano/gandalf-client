@@ -1,6 +1,3 @@
-.. py:module:: gandalf.client
-.. py:class:: GandalfClient
-
 Available Methods
 =================
 
@@ -57,11 +54,12 @@ Available Methods
    repo_name = "gettest_%s" % uuid4()
    gandalf.repository_new(repo_name, ['rfloriano'], True)
 
-.. automethod:: gandalf.client.GandalfClient.repository_new
+:mod:`client` Module
+----------------------------
 
-.. automethod:: gandalf.client.GandalfClient.repository_get
-
-.. automethod:: gandalf.client.GandalfClient.repository_tree
+.. automodule:: gandalf.client
+    :members:
+    :undoc-members:
 
 repository_rename
 -----------------
