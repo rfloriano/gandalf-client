@@ -14,7 +14,7 @@ from Crypto.PublicKey import RSA
 
 import gandalf.client as client
 from tests.base import TestCase
-from tests.utils import create_repository, add_file_to_repo, tag_repo
+from tests.utils import create_repository, add_file_to_repo, tag_repo, branch_repo
 
 
 TMP_DIR = tempfile.gettempdir()
@@ -128,6 +128,28 @@ class TestGandalfClient(TestCase):
         expect(response['ssh_url']).to_equal('git@localhost:8001:%s.git' % repo)
         expect(response['name']).to_equal(repo)
         expect(response['public']).to_be_false()
+
+    def test_can_get_repository_branchs(self):
+        repo = str(uuid.uuid4())
+        create_repository(repo)
+        branch_repo(repo, 'branch-test')
+
+        response = self.gandalf.repository_branch(repo)
+        result = response.json()
+        expect(result[0]).to_include('name')
+        expect(result[0]['name']).to_equal('branch-test')
+        expect(result[1]).to_include('name')
+        expect(result[1]['name']).to_equal('master')
+
+    def test_can_get_repository_tags(self):
+        repo = str(uuid.uuid4())
+        create_repository(repo)
+        tag_repo(repo, 'my-tag')
+
+        response = self.gandalf.repository_tag(repo)
+        result = response.json()
+        expect(result[0]).to_include('name')
+        expect(result[0]['name']).to_equal('my-tag')
 
     def test_can_get_healthcheck(self):
         response = self.gandalf.healthcheck()

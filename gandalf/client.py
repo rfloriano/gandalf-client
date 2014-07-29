@@ -192,6 +192,20 @@ class GandalfClient(object):
             method="DELETE",
         )
 
+    def repository_branch(self, name):
+        # router.Get("/repository/:name/branch", http.HandlerFunc(api.GetBranch))
+        return self._request(
+            url=self._get_url('/repository/{0}/branch'.format(name)),
+            method="GET",
+        )
+
+    def repository_tag(self, name):
+        # router.Get("/repository/:name/tag", http.HandlerFunc(api.GetTag))
+        return self._request(
+            url=self._get_url('/repository/{0}/tag'.format(name)),
+            method="GET",
+        )
+
     def user_add_key(self, name, keys):
         # router.Post("/user/:name/key", http.HandlerFunc(api.AddKey))
         return self._request(
@@ -283,7 +297,3 @@ class GandalfClient(object):
             return response.text == 'WORKING'
 
         return False
-
-    # TODO: needs to implement methods for these server routes
-    # router.Get("/repository/:name/branch", http.HandlerFunc(api.GetBranch))
-    # router.Get("/repository/:name/tag", http.HandlerFunc(api.GetTag))
