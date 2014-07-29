@@ -55,7 +55,7 @@ Available Methods
    gandalf.repository_new(repo_name, ['rfloriano'], True)
 
 :mod:`client` Module
-----------------------------
+====================
 
 .. automodule:: gandalf.client
     :members:
