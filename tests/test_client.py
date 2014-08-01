@@ -14,11 +14,12 @@ from Crypto.PublicKey import RSA
 
 import gandalf.client as client
 from tests.base import TestCase
-from tests.utils import create_repository, add_file_to_repo, tag_repo, branch_repo
+from tests.utils import create_repository, create_bare_repository, add_file_to_repo, tag_repo, branch_repo
 
 
 TMP_DIR = tempfile.gettempdir()
 HOOKS_DIR = '/tmp/git/bare-template/hooks'
+REPOS_DIR = '/tmp/repositories-test'
 
 get_key = lambda: RSA.generate(2048, os.urandom).exportKey('OpenSSH')
 
@@ -129,12 +130,12 @@ class TestGandalfClient(TestCase):
         expect(response['name']).to_equal(repo)
         expect(response['public']).to_be_false()
 
-    def test_can_get_repository_branchs(self):
+    def test_can_get_repository_branches(self):
         repo = str(uuid.uuid4())
         create_repository(repo)
         branch_repo(repo, 'branch-test')
 
-        response = self.gandalf.repository_branch(repo)
+        response = self.gandalf.repository_branches(repo)
         result = response.json()
         expect(result[0]).to_include('name')
         expect(result[0]['name']).to_equal('branch-test')
@@ -146,7 +147,7 @@ class TestGandalfClient(TestCase):
         create_repository(repo)
         tag_repo(repo, 'my-tag')
 
-        response = self.gandalf.repository_tag(repo)
+        response = self.gandalf.repository_tags(repo)
         result = response.json()
         expect(result[0]).to_include('name')
         expect(result[0]['name']).to_equal('my-tag')
@@ -284,3 +285,54 @@ class TestGandalfClient(TestCase):
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo)
+
+    def test_can_add_repository_hook(self):
+        repo = str(uuid.uuid4())
+        create_bare_repository(repo)
+
+        self.gandalf.repository_hook('post-receive', repo, repo)
+        archive = file(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'post-receive'), 'r')
+        content = archive.read()
+        archive.close()
+        expect(content).to_equal(repo)
+
+        self.gandalf.repository_hook('pre-receive', repo, repo)
+        archive = file(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'pre-receive'), 'r')
+        content = archive.read()
+        archive.close()
+        expect(content).to_equal(repo)
+
+        self.gandalf.repository_hook('update', repo, repo)
+        archive = file(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'update'), 'r')
+        content = archive.read()
+        archive.close()
+        expect(content).to_equal(repo)
+
+        self.gandalf.repository_hook('update', [repo], repo + ' another')
+        archive = file(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'update'), 'r')
+        content = archive.read()
+        archive.close()
+        expect(content).to_equal(repo + ' another')
+
+        response = self.gandalf.repository_hook('invalid', repo, repo)
+        expect(response.status_code).to_equal(400)
+        expect(response.content).to_equal('Unsupported hook, valid options are: post-receive, pre-receive or update\n')
+
+
+    def test_can_diff_commits(self):
+        repo = str(uuid.uuid4())
+        create_repository(repo)
+        add_file_to_repo(repo, 'some/path/doge.txt', 'FOO BAR')
+        tag_repo(repo, '0.1.0')
+        add_file_to_repo(repo, 'some/path/doge.txt', 'OTHER TEST')
+
+        response = self.gandalf.repository_diff_commits(repo, '0.1.0', 'master')
+        expected = """diff --git a/some/path/doge.txt b/some/path/doge.txt
+index 404727f..bd82f1d 100644
+--- a/some/path/doge.txt
++++ b/some/path/doge.txt
+@@ -1 +1 @@
+-FOO BAR
++OTHER TEST
+"""
+        expect(expected).to_equal(response.content)

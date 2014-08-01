@@ -124,7 +124,7 @@ class GandalfClient(object):
            ... }]
            True
         '''
-        # router.Get("/repository/:name/tree/:path", http.HandlerFunc(api.GetTree))
+        # router.Get("/repository/:name/tree", http.HandlerFunc(api.GetTree))
         path = path.lstrip('/')
         if path != '':
             path = "&path=%s" % path
@@ -192,18 +192,40 @@ class GandalfClient(object):
             method="DELETE",
         )
 
-    def repository_branch(self, name):
-        # router.Get("/repository/:name/branch", http.HandlerFunc(api.GetBranch))
+    def repository_branches(self, name):
+        # router.Get("/repository/:name/branches", http.HandlerFunc(api.GetBranches))
         return self._request(
-            url=self._get_url('/repository/{0}/branch'.format(name)),
+            url=self._get_url('/repository/{0}/branches'.format(name)),
             method="GET",
         )
 
-    def repository_tag(self, name):
-        # router.Get("/repository/:name/tag", http.HandlerFunc(api.GetTag))
+    def repository_tags(self, name):
+        # router.Get("/repository/:name/tags", http.HandlerFunc(api.GetTags))
         return self._request(
-            url=self._get_url('/repository/{0}/tag'.format(name)),
+            url=self._get_url('/repository/{0}/tags'.format(name)),
             method="GET",
+        )
+
+    def repository_hook(self, name, repositories, content):
+        # router.Post("/repository/hook/:name", http.HandlerFunc(api.AddRepositoryHook))
+        if isinstance(repositories, basestring):
+            repositories = [repositories]
+
+        return self._request(
+            url=self._get_url('/repository/hook/{0}'.format(name)),
+            method="POST",
+            data=json.dumps({
+                "repositories": repositories,
+                "content": content
+            })
+        )
+
+    def repository_diff_commits(self, name, previous_commit, last_commit):
+        # router.Get("/repository/:name/diff/commits", http.HandlerFunc(api.GetDiff))
+        return self._request(
+            url=self._get_url('/repository/{0}/diff/commits?previous_commit={1}&last_commit={2}'\
+                    .format(name, previous_commit, last_commit)),
+            method="GET"
         )
 
     def user_add_key(self, name, keys):
