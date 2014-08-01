@@ -22,3 +22,8 @@ after_success:
   - coveralls
 
 services: mongodb
+
+branches:
+  only:
+    - master
+    - unstable
