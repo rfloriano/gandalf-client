@@ -5,10 +5,7 @@ python:
   - "3.4"
   - "pypy"
 
-before_install:
-    - sudo apt-add-repository ppa:tsuru/ppa -y
-    - sudo apt-get update -qq
-    - sudo apt-get install gandalf-server -qq
+before_install: ./.travis/before_install
 
 install:
     # install python requirements
