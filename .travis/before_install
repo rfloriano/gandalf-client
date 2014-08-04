@@ -6,7 +6,7 @@ if `test $TRAVIS_BRANCH='unstable'`; then
     cd /tmp/go/src
     rm -rf /tmp/go/src/gandalf
     export GOPATH=/tmp/go
-    git clone https://github.com/rfloriano/gandalf.git
+    git clone https://github.com/tsuru/gandalf.git
     cd gandalf
     make get
     go build webserver/main.go
