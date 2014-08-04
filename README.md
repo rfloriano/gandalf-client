@@ -1,4 +1,4 @@
-gandalf-client [![Build Status](https://travis-ci.org/rfloriano/gandalf-client.svg?branch=master)](https://travis-ci.org/rfloriano/gandalf-client) [![Coverage Status](https://coveralls.io/repos/rfloriano/gandalf-client/badge.png)](https://coveralls.io/r/rfloriano/gandalf-client)
+gandalf-client [![Build Status](https://travis-ci.org/rfloriano/gandalf-client.svg?branch=unstable)](https://travis-ci.org/rfloriano/gandalf-client) [![Coverage Status](https://coveralls.io/repos/rfloriano/gandalf-client/badge.png)](https://coveralls.io/r/rfloriano/gandalf-client)
 =================================================================================================================
 
 gandalf-client is a python client for gandalf (https://github.com/tsuru/gandalf)
