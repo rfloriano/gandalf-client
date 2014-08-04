@@ -25,7 +25,7 @@ def create_bare_repository(name):
     if exists(repo_path):
         shutil.rmtree(repo_path)
 
-    os.system('cd %s && mkdir %s && cd %s && git init --bare && touch README && git add . && git commit -am "Initial commit"' % (
+    os.system('cd %s && mkdir %s && cd %s && git init --bare' % (
         ROOT, repo_name, repo_name
     ))
 
