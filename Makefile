@@ -62,8 +62,6 @@ kill_mongo_test:
 # get a gandalft instance up for your unit tests (localhost:8001)
 gandalf_test: kill_gandalf_test
 	@rm -f ./.git/index.lock
-	@git config --global user.email "foo@bar.com"
-	@git config --global user.name "Foo Bar"
 	@mkdir -p /tmp/repositories-test
 	@mkdir -p /tmp/git/bare-template/hooks && touch /tmp/git/bare-template/hooks/{post-receive,pre-receive,update}
 	@gandalf-server -config="./tests/gandalf-test.conf" &

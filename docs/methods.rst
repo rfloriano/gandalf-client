@@ -195,8 +195,6 @@ Example:
 
    gandalf.user_delete_key('rfloriano', 'my-ssh-key-another')
 
-.. automethod:: gandalf.client.GandalfClient.user_new
-
 user_delete
 -----------
 
