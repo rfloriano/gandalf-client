@@ -26,7 +26,7 @@ doctest:
 
 unit:
 	@coverage run --branch `which nosetests` -vv --with-yanc -s tests/
-	@coverage report -m --fail-under=80
+	@coverage report -m --fail-under=70
 
 focus:
 	@coverage run --branch `which nosetests` -vv --with-yanc --logging-level=WARNING --with-focus -s tests/
