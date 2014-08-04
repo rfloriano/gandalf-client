@@ -7,6 +7,7 @@ import StringIO
 import tarfile
 import zipfile
 import tempfile
+import shutil
 
 from preggy import expect
 import requests
@@ -265,8 +266,9 @@ class TestGandalfClient(TestCase):
 
     def test_can_add_hook(self):
         repo = str(uuid.uuid4())
-        create_repository(repo)
-        add_file_to_repo(repo, 'some/path/doge.txt', 'FOO BAR')
+        if os.path.exists(HOOKS_DIR):
+            shutil.rmtree(HOOKS_DIR)
+        os.makedirs(HOOKS_DIR)
 
         self.gandalf.hook_add('post-receive', repo)
         archive = file(os.path.join(HOOKS_DIR, 'post-receive'), 'r')
@@ -308,7 +310,7 @@ class TestGandalfClient(TestCase):
         archive.close()
         expect(content).to_equal(repo)
 
-        self.gandalf.hook_add('update', [repo], repo + ' another')
+        self.gandalf.hook_add('update', repo + ' another', [repo])
         archive = file(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'update'), 'r')
         content = archive.read()
         archive.close()
