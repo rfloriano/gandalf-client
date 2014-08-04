@@ -206,20 +206,6 @@ class GandalfClient(object):
             method="GET",
         )
 
-    def repository_hook(self, name, repositories, content):
-        # router.Post("/repository/hook/:name", http.HandlerFunc(api.AddRepositoryHook))
-        if isinstance(repositories, basestring):
-            repositories = [repositories]
-
-        return self._request(
-            url=self._get_url('/repository/hook/{0}'.format(name)),
-            method="POST",
-            data=json.dumps({
-                "repositories": repositories,
-                "content": content
-            })
-        )
-
     def repository_diff_commits(self, name, previous_commit, last_commit):
         # router.Get("/repository/:name/diff/commits", http.HandlerFunc(api.GetDiff))
         return self._request(
@@ -294,12 +280,21 @@ class GandalfClient(object):
             method="DELETE",
         )
 
-    def hook_add(self, name, content):
+    def hook_add(self, name, content, repositories=None):
         # router.Post("/hook/:name", http.HandlerFunc(api.AddHook))
+        if repositories is None:
+            repositories = []
+
+        if isinstance(repositories, basestring):
+            repositories = [repositories]
+
         return self._request(
             url=self._get_url('/hook/{0}'.format(name)),
             method="POST",
-            data=content
+            data=json.dumps({
+                "repositories": repositories,
+                "content": content
+            })
         )
 
     def healthcheck(self):

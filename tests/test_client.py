@@ -290,31 +290,31 @@ class TestGandalfClient(TestCase):
         repo = str(uuid.uuid4())
         create_bare_repository(repo)
 
-        self.gandalf.repository_hook('post-receive', repo, repo)
+        self.gandalf.hook_add('post-receive', repo, repo)
         archive = file(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'post-receive'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo)
 
-        self.gandalf.repository_hook('pre-receive', repo, repo)
+        self.gandalf.hook_add('pre-receive', repo, repo)
         archive = file(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'pre-receive'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo)
 
-        self.gandalf.repository_hook('update', repo, repo)
+        self.gandalf.hook_add('update', repo, repo)
         archive = file(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'update'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo)
 
-        self.gandalf.repository_hook('update', [repo], repo + ' another')
+        self.gandalf.hook_add('update', [repo], repo + ' another')
         archive = file(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'update'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo + ' another')
 
-        response = self.gandalf.repository_hook('invalid', repo, repo)
+        response = self.gandalf.hook_add('invalid', repo, repo)
         expect(response.status_code).to_equal(400)
         expect(response.content).to_equal('Unsupported hook, valid options are: post-receive, pre-receive or update\n')
 
