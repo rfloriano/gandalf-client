@@ -26,7 +26,7 @@ tests_require = [
     'tornado',
     'cow-framework',
     'requests',
-    'pycrypto',
+    'pycrypto==master',
     'sphinx_rtd_theme',
 ]
 
@@ -59,6 +59,7 @@ an incredible python package
     extras_require={
         'tests': tests_require,
     },
+    dependency_links=['https://github.com/dlitz/pycrypto/tarball/master#egg=pycrypto-master'],
     entry_points={
         'console_scripts': [
             # add cli scripts here in this form:

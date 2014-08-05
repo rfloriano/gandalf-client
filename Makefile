@@ -14,7 +14,7 @@ no_targets__:
 
 # install all dependencies (do not forget to create a virtualenv first)
 setup:
-	@pip install -U -e .\[tests\]
+	@pip install -U --allow-external pycrypto --allow-unverified pycrypto --process-dependency-links  -e .\[tests\]
 
 # test your application (tests in the tests/ directory)
 test: services_test unit doctest
