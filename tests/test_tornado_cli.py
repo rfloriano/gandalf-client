@@ -13,7 +13,6 @@ import gandalf.tornado_cli as client
 from tests.base import AsyncTestCase
 from tests.utils import create_repository, add_file_to_repo, tag_repo
 
-
 get_key = lambda: RSA.generate(2048, os.urandom).exportKey('OpenSSH')
 
 
@@ -46,7 +45,7 @@ class TestTornadoGandalfClient(AsyncTestCase):
     @gen_test
     def test_can_manage_user_keys(self):
         user = str(uuid.uuid4())
-        key = get_key()
+        key = get_key().decode('utf-8')
 
         yield self.gandalf.user_new(user, {})
 

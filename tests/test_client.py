@@ -3,11 +3,17 @@
 
 import uuid
 import os
-import StringIO
 import tarfile
 import zipfile
 import tempfile
 import shutil
+
+try:
+    from StringIO import StringIO
+    IO = StringIO
+except ImportError:
+    from io import BytesIO
+    IO = BytesIO
 
 from preggy import expect
 import requests
@@ -16,7 +22,6 @@ from Crypto.PublicKey import RSA
 import gandalf.client as client
 from tests.base import TestCase
 from tests.utils import create_repository, create_bare_repository, add_file_to_repo, tag_repo, branch_repo
-
 
 TMP_DIR = tempfile.gettempdir()
 HOOKS_DIR = '/tmp/git/bare-template/hooks'
@@ -34,7 +39,7 @@ class TestGandalfClient(TestCase):
     def test_can_create_user(self):
         user = str(uuid.uuid4())
         result = self.gandalf.user_new(user, {
-            'default': '%s rfloriano@localmachine' % get_key()
+            'default': '{0} rfloriano@localmachine'.format(get_key().decode('utf-8'))
         })
 
         expect(result).to_be_true()
@@ -63,7 +68,7 @@ class TestGandalfClient(TestCase):
 
     def test_can_manage_user_keys(self):
         user = str(uuid.uuid4())
-        key = get_key()
+        key = get_key().decode('utf-8')
         self.gandalf.user_new(user, {})
 
         response = self.gandalf.user_add_key(user, {'foo': key})
@@ -249,17 +254,17 @@ class TestGandalfClient(TestCase):
         add_file_to_repo(repo, 'some/path/doge.txt', 'OTHER TEST')
 
         file_ = self.gandalf.repository_archive(repo, 'master', 'tar')
-        tar = tarfile.TarFile(fileobj=StringIO.StringIO(file_.content))
+        tar = tarfile.TarFile(fileobj=IO(file_.content))
         tar.extract('{0}-master/some/path/doge.txt'.format(repo), TMP_DIR)
-        archive = file(os.path.join(TMP_DIR, '{0}-master/some/path/doge.txt'.format(repo)), 'r')
+        archive = open(os.path.join(TMP_DIR, '{0}-master/some/path/doge.txt'.format(repo)), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal('OTHER TEST\n')
 
         file_ = self.gandalf.repository_archive(repo, '0.1.0')
-        zip_ = zipfile.ZipFile(StringIO.StringIO(file_.content))
+        zip_ = zipfile.ZipFile(IO(file_.content))
         zip_.extract('{0}-0.1.0/some/path/doge.txt'.format(repo), TMP_DIR)
-        archive = file(os.path.join(TMP_DIR, '{0}-0.1.0/some/path/doge.txt'.format(repo)), 'r')
+        archive = open(os.path.join(TMP_DIR, '{0}-0.1.0/some/path/doge.txt'.format(repo)), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal('FOO BAR\n')
@@ -271,19 +276,19 @@ class TestGandalfClient(TestCase):
         os.makedirs(HOOKS_DIR)
 
         self.gandalf.hook_add('post-receive', repo)
-        archive = file(os.path.join(HOOKS_DIR, 'post-receive'), 'r')
+        archive = open(os.path.join(HOOKS_DIR, 'post-receive'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo)
 
         self.gandalf.hook_add('pre-receive', repo)
-        archive = file(os.path.join(HOOKS_DIR, 'pre-receive'), 'r')
+        archive = open(os.path.join(HOOKS_DIR, 'pre-receive'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo)
 
         self.gandalf.hook_add('update', repo)
-        archive = file(os.path.join(HOOKS_DIR, 'update'), 'r')
+        archive = open(os.path.join(HOOKS_DIR, 'update'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo)
@@ -293,25 +298,25 @@ class TestGandalfClient(TestCase):
         create_bare_repository(repo)
 
         self.gandalf.hook_add('post-receive', repo, repo)
-        archive = file(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'post-receive'), 'r')
+        archive = open(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'post-receive'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo)
 
         self.gandalf.hook_add('pre-receive', repo, repo)
-        archive = file(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'pre-receive'), 'r')
+        archive = open(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'pre-receive'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo)
 
         self.gandalf.hook_add('update', repo, repo)
-        archive = file(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'update'), 'r')
+        archive = open(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'update'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo)
 
         self.gandalf.hook_add('update', repo + ' another', [repo])
-        archive = file(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'update'), 'r')
+        archive = open(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'update'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo + ' another')

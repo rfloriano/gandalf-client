@@ -90,7 +90,7 @@ class AsyncTornadoGandalfClient(client.GandalfClient):
                 response.code, response.body)
             )
 
-        raise gen.Return(json.loads(response.body))
+        raise gen.Return(json.loads(response.body.decode('utf-8')))
 
     @gen.coroutine
     def repository_tree(self, name, path='', ref='master'):
@@ -109,7 +109,7 @@ class AsyncTornadoGandalfClient(client.GandalfClient):
         if response.code != 200:
             raise RuntimeError("Could not retrieve tree. Status: %s. Error: %s" % (response.code, response.body))
 
-        raise gen.Return(json.loads(response.body))
+        raise gen.Return(json.loads(response.body.decode('utf-8')))
 
     @gen.coroutine
     def user_new(self, name, keys):

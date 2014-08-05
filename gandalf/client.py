@@ -3,6 +3,7 @@
 
 import sys
 import logging
+from six import string_types
 
 try:
     import ujson as json
@@ -285,7 +286,7 @@ class GandalfClient(object):
         if repositories is None:
             repositories = []
 
-        if isinstance(repositories, basestring):
+        if isinstance(repositories, string_types):
             repositories = [repositories]
 
         return self._request(
