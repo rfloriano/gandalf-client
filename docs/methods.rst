@@ -41,7 +41,7 @@ Available Methods
    gandalf = GandalfClient("localhost", 8001, requests.request)
 
    user_name = "user_%s" % uuid4()
-   my_ssh_public_key = RSA.generate(2048, os.urandom).exportKey('OpenSSH')
+   my_ssh_public_key = RSA.generate(2048, os.urandom).exportKey('OpenSSH').decode('utf-8')
 
 .. testsetup:: repository_get
 
