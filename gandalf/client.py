@@ -3,6 +3,7 @@
 
 import sys
 import logging
+import urllib
 from six import string_types
 
 try:
@@ -213,6 +214,22 @@ class GandalfClient(object):
             url=self._get_url('/repository/{0}/diff/commits?previous_commit={1}&last_commit={2}'\
                     .format(name, previous_commit, last_commit)),
             method="GET"
+        )
+
+    def repository_commit(self, name, message, author_name, author_email, committer_name, committer_email, branch, files):
+        # router.Post("/repository/:name/commit", http.HandlerFunc(api.Commit))
+        return self._request(
+            url=self._get_url('/repository/{0}/commit'.format(name)),
+            method="POST",
+            data={
+                "message": message,
+                "author-name": author_name,
+                "author-email": author_email,
+                "committer-name": committer_name,
+                "committer-email": committer_email,
+                "branch": branch,
+            },
+            files={"zipfile": files},
         )
 
     def user_add_key(self, name, keys):

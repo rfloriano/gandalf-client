@@ -325,7 +325,6 @@ class TestGandalfClient(TestCase):
         expect(response.status_code).to_equal(400)
         expect(response.content).to_equal('Unsupported hook, valid options are: post-receive, pre-receive or update\n')
 
-
     def test_can_diff_commits(self):
         repo = str(uuid.uuid4())
         create_repository(repo)
@@ -343,3 +342,20 @@ index 404727f..bd82f1d 100644
 +OTHER TEST
 """
         expect(expected).to_equal(response.content)
+
+    def test_can_commit_into_repo(self):
+        repo = str(uuid.uuid4())
+        create_bare_repository(repo)
+
+        response = self.gandalf.repository_commit(
+            repo,
+            'Repository scaffold',
+            'Author Name',
+            'author@name.com',
+            'Committer Name',
+            'committer@email.com',
+            'master',
+            open('./tests/fixtures/scaffold.zip')
+        )
+        print(response.content, repo)
+        expect(200).to_equal(response.status_code)
