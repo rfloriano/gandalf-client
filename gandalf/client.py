@@ -6,6 +6,8 @@ import logging
 import urllib
 from six import string_types
 
+from gandalf.decorators import may_async, response_bool, response_json, response_text, response_archive
+
 try:
     import ujson as json
 except ImportError:
@@ -13,7 +15,6 @@ except ImportError:
 
 
 class GandalfClient(object):
-
     def __init__(self, host, port, client):
         self.host = host
         self.port = port
@@ -27,8 +28,23 @@ class GandalfClient(object):
         return '{0}/{1}'.format(self.gandalf_server, route.lstrip('/'))
 
     def _request(self, *args, **kwargs):
-        return self.client(*args, **kwargs)
+        response = self.client(*args, **kwargs)
+        code = self.get_code(response)
+        if code != 200:
+            body = self.get_body(response).strip()
+            raise RuntimeError("Could not retrieve tree. Status: %s. Error: %s" % (
+                code, body
+            ))
+        return response
 
+    def get_code(self, response):
+        return response.status_code
+
+    def get_body(self, response):
+        return response.content.decode('utf-8')
+
+    @response_bool
+    @may_async
     def repository_new(self, name, users, is_public=False):
         '''
         Creates a new repository with the given name.
@@ -47,25 +63,14 @@ class GandalfClient(object):
            >>> gandalf.repository_new(repo_name, users=['rfloriano'], is_public=True)
            True
         '''
-        # TODO: needs to validate if repository has some user
-        # router.Post("/repository", http.HandlerFunc(api.NewRepository))
-        try:
-            response = self._request(
-                url=self._get_url('/repository'),
-                method="POST",
-                data=json.dumps({'name': name, 'users': users, 'ispublic': is_public})
-            )
-            if response.status_code == 200:
-                return True
+        return self._request(
+            url=self._get_url('/repository'),
+            method="POST",
+            data=json.dumps({'name': name, 'users': users, 'ispublic': is_public})
+        )
 
-        except Exception:
-            err = sys.exc_info()[1]
-            logging.exception(err)
-            return False
-
-        logging.error("Could not create repository %s." % name)
-        return False
-
+    @response_json
+    @may_async
     def repository_get(self, name):
         '''
         Gets information on the specified repository.
@@ -86,20 +91,14 @@ class GandalfClient(object):
            ... }
            True
         '''
-
         # router.Get("/repository/:name", http.HandlerFunc(api.GetRepository))
-        response = self._request(
+        return self._request(
             url=self._get_url('/repository/{0}'.format(name)),
             method="GET",
         )
 
-        if response.status_code != 200:
-            raise RuntimeError("Could not retrieve repository information. Status: %s. Error: %s" % (
-                response.status_code, response.text)
-            )
-
-        return json.loads(response.text)
-
+    @response_json
+    @may_async
     def repository_tree(self, name, path='', ref='master'):
         '''
         Returns a list of all tracked files in the specified path in the given repository.
@@ -131,19 +130,13 @@ class GandalfClient(object):
         if path != '':
             path = "&path=%s" % path
 
-        url = self._get_url('/repository/{0}/tree?ref={1}{2}'.format(name, ref, path))
-        response = self._request(
-            url=url,
+        return self._request(
+            url=self._get_url('/repository/{0}/tree?ref={1}{2}'.format(name, ref, path)),
             method="GET",
         )
 
-        if response.status_code != 200:
-            raise RuntimeError("Could not retrieve tree. Status: %s. Error: %s" % (
-                response.status_code, response.text
-            ))
-
-        return json.loads(response.text)
-
+    @response_bool
+    @may_async
     def repository_rename(self, old_name, new_name):
         # router.Put("/repository/:name", http.HandlerFunc(api.RenameRepository))
         return self._request(
@@ -152,6 +145,8 @@ class GandalfClient(object):
             data=json.dumps({'name': new_name})
         )
 
+    @response_bool
+    @may_async
     def repository_grant(self, users, repositories):
         # router.Post("/repository/grant", http.HandlerFunc(api.GrantAccess))
         return self._request(
@@ -160,6 +155,8 @@ class GandalfClient(object):
             data=json.dumps({'users': users, 'repositories': repositories})
         )
 
+    @response_bool
+    @may_async
     def repository_revoke(self, users, repositories):
         # router.Del("/repository/revoke", http.HandlerFunc(api.RevokeAccess))
         return self._request(
@@ -168,6 +165,8 @@ class GandalfClient(object):
             data=json.dumps({'users': users, 'repositories': repositories})
         )
 
+    @response_archive
+    @may_async
     def repository_archive(self, name, ref, format='zip'):
         # router.Get("/repository/:name/archive", http.HandlerFunc(api.GetArchive))
         return self._request(
@@ -175,18 +174,17 @@ class GandalfClient(object):
             method="GET",
         )
 
+    @response_text
+    @may_async
     def repository_contents(self, name, path, ref='master'):
         # router.Get("/repository/:name/contents", http.HandlerFunc(api.GetFileContents))
-        request = self._request(
+        return self._request(
             url=self._get_url('/repository/{0}/contents?path={1}&ref={2}'.format(name, path, ref)),
             method="GET",
         )
 
-        if request.status_code != 200:
-            raise RuntimeError(request.text)
-
-        return request.text
-
+    @response_bool
+    @may_async
     def repository_delete(self, name):
         # router.Del("/repository/:name", http.HandlerFunc(api.RemoveRepository))
         return self._request(
@@ -194,6 +192,8 @@ class GandalfClient(object):
             method="DELETE",
         )
 
+    @response_json
+    @may_async
     def repository_branches(self, name):
         # router.Get("/repository/:name/branches", http.HandlerFunc(api.GetBranches))
         return self._request(
@@ -201,6 +201,8 @@ class GandalfClient(object):
             method="GET",
         )
 
+    @response_json
+    @may_async
     def repository_tags(self, name):
         # router.Get("/repository/:name/tags", http.HandlerFunc(api.GetTags))
         return self._request(
@@ -208,6 +210,8 @@ class GandalfClient(object):
             method="GET",
         )
 
+    @response_text
+    @may_async
     def repository_diff_commits(self, name, previous_commit, last_commit):
         # router.Get("/repository/:name/diff/commits", http.HandlerFunc(api.GetDiff))
         return self._request(
@@ -216,6 +220,8 @@ class GandalfClient(object):
             method="GET"
         )
 
+    @response_json
+    @may_async
     def repository_commit(self, name, message, author_name, author_email, committer_name, committer_email, branch, files):
         # router.Post("/repository/:name/commit", http.HandlerFunc(api.Commit))
         return self._request(
@@ -232,6 +238,8 @@ class GandalfClient(object):
             files={"zipfile": files},
         )
 
+    @response_bool
+    @may_async
     def user_add_key(self, name, keys):
         # router.Post("/user/:name/key", http.HandlerFunc(api.AddKey))
         return self._request(
@@ -240,6 +248,8 @@ class GandalfClient(object):
             data=json.dumps(keys)
         )
 
+    @response_json
+    @may_async
     def user_get_keys(self, name):
         # router.Get("/user/:name/keys", http.HandlerFunc(api.ListKeys))
         return self._request(
@@ -247,6 +257,8 @@ class GandalfClient(object):
             method="GET",
         )
 
+    @response_bool
+    @may_async
     def user_delete_key(self, name, keyname):
         # router.Del("/user/:name/key/:keyname", http.HandlerFunc(api.RemoveKey))
         return self._request(
@@ -254,6 +266,8 @@ class GandalfClient(object):
             method="DELETE",
         )
 
+    @response_bool
+    @may_async
     def user_new(self, name, keys):
         '''
         Creates a new user. SSH Keys for this user may be specified.
@@ -274,23 +288,14 @@ class GandalfClient(object):
         '''
 
         # router.Post("/user", http.HandlerFunc(api.NewUser))
-        try:
-            response = self._request(
-                url=self._get_url('/user'),
-                method="POST",
-                data=json.dumps({'name': name, 'keys': keys})
-            )
+        return self._request(
+            url=self._get_url('/user'),
+            method="POST",
+            data=json.dumps({'name': name, 'keys': keys})
+        )
 
-            if response.status_code != 200:
-                return False
-
-        except Exception:
-            err = sys.exc_info()[1]
-            logging.exception(err)
-            return False
-
-        return True
-
+    @response_bool
+    @may_async
     def user_delete(self, name):
         # router.Del("/user/:name", http.HandlerFunc(api.RemoveUser))
         return self._request(
@@ -298,6 +303,8 @@ class GandalfClient(object):
             method="DELETE",
         )
 
+    @response_bool
+    @may_async
     def hook_add(self, name, content, repositories=None):
         # router.Post("/hook/:name", http.HandlerFunc(api.AddHook))
         if repositories is None:
@@ -315,20 +322,11 @@ class GandalfClient(object):
             })
         )
 
+    @response_bool(text='WORKING')
+    @may_async
     def healthcheck(self):
         # router.Get("/healthcheck/", http.HandlerFunc(api.HealthCheck))
-        response = self._request(
+        return self._request(
             url=self._get_url('/healthcheck'),
             method="GET",
         )
-
-        if response.status_code != 200:
-            return False
-
-        if hasattr(response, 'body'):
-            return response.body.decode('utf-8') == 'WORKING'
-
-        if hasattr(response, 'text'):
-            return response.text == 'WORKING'
-
-        return False

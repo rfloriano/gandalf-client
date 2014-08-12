@@ -36,11 +36,11 @@ class TestTornadoGandalfClient(AsyncTestCase):
     @gen_test
     def test_can_manage_users(self):
         user = str(uuid.uuid4())
-        response = yield self.gandalf.user_new(user, {})
-        expect(response).to_be_true()
+        created = yield self.gandalf.user_new(user, {})
+        expect(created).to_be_true()
 
-        response = yield self.gandalf.user_delete(user)
-        expect(response.code).to_equal(200)
+        removed = yield self.gandalf.user_delete(user)
+        expect(removed).to_be_true()
 
     @gen_test
     def test_can_manage_user_keys(self):
@@ -49,17 +49,14 @@ class TestTornadoGandalfClient(AsyncTestCase):
 
         yield self.gandalf.user_new(user, {})
 
-        response = yield self.gandalf.user_add_key(user, {'foo': key})
-        expect(response.code).to_equal(200)
+        added = yield self.gandalf.user_add_key(user, {'foo': key})
+        expect(added).to_be_true()
 
-        response = yield self.gandalf.user_get_keys(user)
-        expect(response.code).to_equal(200)
+        json = yield self.gandalf.user_get_keys(user)
+        expect(json['foo']).to_equal(key)
 
-        data = load_json(response.body)
-        expect(data['foo']).to_equal(key)
-
-        response = yield self.gandalf.user_delete_key(user, 'foo')
-        expect(response.code).to_equal(200)
+        removed = yield self.gandalf.user_delete_key(user, 'foo')
+        expect(removed).to_be_true()
 
         yield self.gandalf.user_delete(user)
 
@@ -73,8 +70,8 @@ class TestTornadoGandalfClient(AsyncTestCase):
         yield self.gandalf.user_new(user, {})
         yield self.gandalf.user_new(user2, {})
 
-        response = yield self.gandalf.repository_new(repo, [user])
-        expect(response).to_be_true()
+        created = yield self.gandalf.repository_new(repo, [user])
+        expect(created).to_be_true()
 
         response = yield self.gandalf.repository_get(repo)
         expect(response).to_include('git_url')
@@ -82,18 +79,18 @@ class TestTornadoGandalfClient(AsyncTestCase):
         expect(response).to_include('name')
         expect(response).to_include('public')
 
-        response = yield self.gandalf.repository_rename(repo, repo2)
-        expect(response.code).to_equal(200)
+        renamed = yield self.gandalf.repository_rename(repo, repo2)
+        expect(renamed).to_be_true()
 
-        response = yield self.gandalf.repository_grant([user2], [repo2])
-        expect(response.code).to_equal(200)
+        granted = yield self.gandalf.repository_grant([user2], [repo2])
+        expect(granted).to_be_true()
 
         # TODO: gandalf server needs to accept delete without body
         # response = yield self.gandalf.repository_revoke([user2], [repo2])
         # expect(response.code).to_equal(200)
 
-        response = yield self.gandalf.repository_delete(repo2)
-        expect(response.code).to_equal(200)
+        removed = yield self.gandalf.repository_delete(repo2)
+        expect(removed).to_be_true()
 
         yield self.gandalf.user_delete(user)
         yield self.gandalf.user_delete(user2)

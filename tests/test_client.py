@@ -3,8 +3,6 @@
 
 import uuid
 import os
-import tarfile
-import zipfile
 import tempfile
 import shutil
 
@@ -46,11 +44,11 @@ class TestGandalfClient(TestCase):
 
     def test_can_create_user_with_invalid_data(self):
         user = str(uuid.uuid4())
-        result = self.gandalf.user_new(user, {
-            'default': 'invalidkey'
-        })
 
-        expect(result).to_be_false()
+        with expect.error_to_happen(RuntimeError, message="Could not retrieve tree. Status: 400. Error: Got error while creating user: Invalid key"):
+            self.gandalf.user_new(user, {
+                'default': 'invalidkey'
+            })
 
     def test_can_create_user_with_no_keys(self):
         user = str(uuid.uuid4())
@@ -63,24 +61,22 @@ class TestGandalfClient(TestCase):
         response = self.gandalf.user_new(user, {})
         expect(response).to_be_true()
 
-        response = self.gandalf.user_delete(user)
-        expect(response.status_code).to_equal(200)
+        removed = self.gandalf.user_delete(user)
+        expect(removed).to_be_true()
 
     def test_can_manage_user_keys(self):
         user = str(uuid.uuid4())
         key = get_key().decode('utf-8')
         self.gandalf.user_new(user, {})
 
-        response = self.gandalf.user_add_key(user, {'foo': key})
-        expect(response.status_code).to_equal(200)
+        added = self.gandalf.user_add_key(user, {'foo': key})
+        expect(added).to_be_true()
 
-        response = self.gandalf.user_get_keys(user)
-        expect(response.status_code).to_equal(200)
-        json = response.json()
+        json = self.gandalf.user_get_keys(user)
         expect(json['foo']).to_equal(key)
 
-        response = self.gandalf.user_delete_key(user, 'foo')
-        expect(response.status_code).to_equal(200)
+        deleted = self.gandalf.user_delete_key(user, 'foo')
+        expect(deleted).to_be_true()
 
         self.gandalf.user_delete(user)
 
@@ -93,7 +89,8 @@ class TestGandalfClient(TestCase):
         self.gandalf.user_new(user, {})
         self.gandalf.user_new(user2, {})
 
-        expect(self.gandalf.repository_new(repo, [user])).to_be_true()
+        created = self.gandalf.repository_new(repo, [user])
+        expect(created).to_be_true()
 
         response = self.gandalf.repository_get(repo)
         expect(response).to_include('git_url')
@@ -101,17 +98,17 @@ class TestGandalfClient(TestCase):
         expect(response).to_include('name')
         expect(response).to_include('public')
 
-        response = self.gandalf.repository_rename(repo, repo2)
-        expect(response.status_code).to_equal(200)
+        renamed = self.gandalf.repository_rename(repo, repo2)
+        expect(renamed).to_be_true()
 
-        response = self.gandalf.repository_grant([user2], [repo2])
-        expect(response.status_code).to_equal(200)
+        granted = self.gandalf.repository_grant([user2], [repo2])
+        expect(granted).to_be_true()
 
-        response = self.gandalf.repository_revoke([user2], [repo2])
-        expect(response.status_code).to_equal(200)
+        revoked = self.gandalf.repository_revoke([user2], [repo2])
+        expect(revoked).to_be_true()
 
-        response = self.gandalf.repository_delete(repo2)
-        expect(response.status_code).to_equal(200)
+        removed = self.gandalf.repository_delete(repo2)
+        expect(removed).to_be_true()
 
         self.gandalf.user_delete(user)
         self.gandalf.user_delete(user2)
@@ -124,7 +121,8 @@ class TestGandalfClient(TestCase):
         self.gandalf.user_new(user, {})
         self.gandalf.user_new(user2, {})
 
-        expect(self.gandalf.repository_new(repo, [user])).to_be_true()
+        created = self.gandalf.repository_new(repo, [user])
+        expect(created).to_be_true()
 
         response = self.gandalf.repository_get(repo)
         expect(response).to_include('git_url')
@@ -141,8 +139,7 @@ class TestGandalfClient(TestCase):
         create_repository(repo)
         branch_repo(repo, 'branch-test')
 
-        response = self.gandalf.repository_branches(repo)
-        result = response.json()
+        result = self.gandalf.repository_branches(repo)
         expect(result[0]).to_include('name')
         expect(result[0]['name']).to_equal('branch-test')
         expect(result[1]).to_include('name')
@@ -153,8 +150,7 @@ class TestGandalfClient(TestCase):
         create_repository(repo)
         tag_repo(repo, 'my-tag')
 
-        response = self.gandalf.repository_tags(repo)
-        result = response.json()
+        result = self.gandalf.repository_tags(repo)
         expect(result[0]).to_include('name')
         expect(result[0]['name']).to_equal('my-tag')
 
@@ -253,16 +249,14 @@ class TestGandalfClient(TestCase):
         tag_repo(repo, '0.1.0')
         add_file_to_repo(repo, 'some/path/doge.txt', 'OTHER TEST')
 
-        file_ = self.gandalf.repository_archive(repo, 'master', 'tar')
-        tar = tarfile.TarFile(fileobj=IO(file_.content))
+        tar = self.gandalf.repository_archive(repo, 'master', 'tar')
         tar.extract('{0}-master/some/path/doge.txt'.format(repo), TMP_DIR)
         archive = open(os.path.join(TMP_DIR, '{0}-master/some/path/doge.txt'.format(repo)), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal('OTHER TEST\n')
 
-        file_ = self.gandalf.repository_archive(repo, '0.1.0')
-        zip_ = zipfile.ZipFile(IO(file_.content))
+        zip_ = self.gandalf.repository_archive(repo, '0.1.0')
         zip_.extract('{0}-0.1.0/some/path/doge.txt'.format(repo), TMP_DIR)
         archive = open(os.path.join(TMP_DIR, '{0}-0.1.0/some/path/doge.txt'.format(repo)), 'r')
         content = archive.read()
@@ -275,19 +269,22 @@ class TestGandalfClient(TestCase):
             shutil.rmtree(HOOKS_DIR)
         os.makedirs(HOOKS_DIR)
 
-        self.gandalf.hook_add('post-receive', repo)
+        created = self.gandalf.hook_add('post-receive', repo)
+        expect(created).to_be_true()
         archive = open(os.path.join(HOOKS_DIR, 'post-receive'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo)
 
-        self.gandalf.hook_add('pre-receive', repo)
+        created = self.gandalf.hook_add('pre-receive', repo)
+        expect(created).to_be_true()
         archive = open(os.path.join(HOOKS_DIR, 'pre-receive'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo)
 
-        self.gandalf.hook_add('update', repo)
+        created = self.gandalf.hook_add('update', repo)
+        expect(created).to_be_true()
         archive = open(os.path.join(HOOKS_DIR, 'update'), 'r')
         content = archive.read()
         archive.close()
@@ -297,33 +294,36 @@ class TestGandalfClient(TestCase):
         repo = str(uuid.uuid4())
         create_bare_repository(repo)
 
-        self.gandalf.hook_add('post-receive', repo, repo)
+        created = self.gandalf.hook_add('post-receive', repo, repo)
+        expect(created).to_be_true()
         archive = open(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'post-receive'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo)
 
-        self.gandalf.hook_add('pre-receive', repo, repo)
+        created = self.gandalf.hook_add('pre-receive', repo, repo)
+        expect(created).to_be_true()
         archive = open(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'pre-receive'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo)
 
-        self.gandalf.hook_add('update', repo, repo)
+        created = self.gandalf.hook_add('update', repo, repo)
+        expect(created).to_be_true()
         archive = open(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'update'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo)
 
-        self.gandalf.hook_add('update', repo + ' another', [repo])
+        created = self.gandalf.hook_add('update', repo + ' another', [repo])
+        expect(created).to_be_true()
         archive = open(os.path.join(REPOS_DIR, repo + '.git', 'hooks', 'update'), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal(repo + ' another')
 
-        response = self.gandalf.hook_add('invalid', repo, repo)
-        expect(response.status_code).to_equal(400)
-        expect(response.content).to_equal('Unsupported hook, valid options are: post-receive, pre-receive or update\n')
+        with expect.error_to_happen(RuntimeError, message="Could not retrieve tree. Status: 400. Error: Unsupported hook, valid options are: post-receive, pre-receive or update"):
+            self.gandalf.hook_add('invalid', repo, repo)
 
     def test_can_diff_commits(self):
         repo = str(uuid.uuid4())
@@ -332,7 +332,7 @@ class TestGandalfClient(TestCase):
         tag_repo(repo, '0.1.0')
         add_file_to_repo(repo, 'some/path/doge.txt', 'OTHER TEST')
 
-        response = self.gandalf.repository_diff_commits(repo, '0.1.0', 'master')
+        diff = self.gandalf.repository_diff_commits(repo, '0.1.0', 'master')
         expected = """diff --git a/some/path/doge.txt b/some/path/doge.txt
 index 404727f..bd82f1d 100644
 --- a/some/path/doge.txt
@@ -341,13 +341,13 @@ index 404727f..bd82f1d 100644
 -FOO BAR
 +OTHER TEST
 """
-        expect(expected).to_equal(response.content)
+        expect(expected).to_equal(diff)
 
     def test_can_commit_into_repo(self):
         repo = str(uuid.uuid4())
         create_bare_repository(repo)
 
-        response = self.gandalf.repository_commit(
+        json = self.gandalf.repository_commit(
             repo,
             'Repository scaffold',
             'Author Name',
@@ -357,5 +357,25 @@ index 404727f..bd82f1d 100644
             'master',
             open('./tests/fixtures/scaffold.zip')
         )
-        print(response.content, repo)
-        expect(200).to_equal(response.status_code)
+
+        expect(json).to_include('committer')
+        expect(json).to_include('author')
+        expect(json).to_include('name')
+        expect(json).to_include('ref')
+        expect(json).to_include('createdAt')
+        expect(json).to_include('subject')
+        expect(json).to_include('_links')
+
+        expect(json['committer']).to_include('date')
+        expect(json['committer']).to_include('name')
+        expect(json['committer']).to_include('email')
+
+        expect(json['author']).to_include('date')
+        expect(json['author']).to_include('name')
+        expect(json['author']).to_include('email')
+
+        expect(json['name']).to_equal(u'master')
+        expect(json['subject']).to_equal(u'Repository scaffold')
+
+        expect(json['_links']).to_include('zipArchive')
+        expect(json['_links']).to_include('tarArchive')
