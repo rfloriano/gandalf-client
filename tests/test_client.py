@@ -364,7 +364,7 @@ index 404727f..bd82f1d 100644
             'Committer Name',
             'committer@email.com',
             'master',
-            open('./tests/fixtures/scaffold.zip')
+            open('./tests/fixtures/scaffold.zip', 'rb')
         )
 
         expect(json).to_include('committer')
