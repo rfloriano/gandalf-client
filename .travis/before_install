@@ -1,6 +1,10 @@
 #!/bin/bash
 
-if `test $TRAVIS_BRANCH='unstable'`; then
+if `test $TRAVIS_BRANCH='stable'`; then
+    sudo apt-add-repository ppa:tsuru/ppa -y
+    sudo apt-get update -qq
+    sudo apt-get install gandalf-server -qq
+else
     sudo apt-get install golang -qq
     mkdir -p /tmp/go/{bin,pkg,src}
     cd /tmp/go/src
@@ -12,10 +16,6 @@ if `test $TRAVIS_BRANCH='unstable'`; then
     go build webserver/main.go
     mv main /home/travis/.rvm/bin/gandalf-server
     cd $TRAVIS_BUILD_DIR
-else
-    sudo apt-add-repository ppa:tsuru/ppa -y
-    sudo apt-get update -qq
-    sudo apt-get install gandalf-server -qq
 fi
 
 git config --global user.email "foo@bar.com"
