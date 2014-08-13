@@ -28,14 +28,7 @@ class GandalfClient(object):
         return '{0}/{1}'.format(self.gandalf_server, route.lstrip('/'))
 
     def _request(self, *args, **kwargs):
-        response = self.client(*args, **kwargs)
-        code = self.get_code(response)
-        if code != 200:
-            body = self.get_body(response).strip()
-            raise RuntimeError("Could not retrieve tree. Status: %s. Error: %s" % (
-                code, body
-            ))
-        return response
+        return self.client(*args, **kwargs)
 
     def get_code(self, response):
         return response.status_code

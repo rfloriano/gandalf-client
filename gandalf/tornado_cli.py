@@ -25,10 +25,6 @@ class AsyncTornadoGandalfClient(client.GandalfClient):
             kwargs['body'] = data
 
         response = yield self.client(url, *args, **kwargs)
-        code = self.get_code(response)
-        if code != 200:
-            body = self.get_body(response).strip()
-            raise RuntimeError("Could not retrieve tree. Status: %s. Error: %s" % (code, body))
         raise gen.Return(response)
 
     def get_code(self, response):

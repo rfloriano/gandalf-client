@@ -44,11 +44,11 @@ class TestGandalfClient(TestCase):
 
     def test_can_create_user_with_invalid_data(self):
         user = str(uuid.uuid4())
+        not_created = self.gandalf.user_new(user, {
+            'default': 'invalidkey'
+        })
 
-        with expect.error_to_happen(RuntimeError, message="Could not retrieve tree. Status: 400. Error: Got error while creating user: Invalid key"):
-            self.gandalf.user_new(user, {
-                'default': 'invalidkey'
-            })
+        expect(not_created).to_be_false()
 
     def test_can_create_user_with_no_keys(self):
         user = str(uuid.uuid4())
@@ -58,11 +58,20 @@ class TestGandalfClient(TestCase):
 
     def test_can_manage_users(self):
         user = str(uuid.uuid4())
-        response = self.gandalf.user_new(user, {})
-        expect(response).to_be_true()
+        created = self.gandalf.user_new(user, {})
+        expect(created).to_be_true()
+
+        not_created = self.gandalf.user_new(user, {})
+        expect(not_created).to_be_false()
 
         removed = self.gandalf.user_delete(user)
         expect(removed).to_be_true()
+
+        not_removed = self.gandalf.user_delete(user)
+        expect(not_removed).to_be_false()
+
+        not_removed = self.gandalf.user_delete('user-that-does-not-exists')
+        expect(not_removed).to_be_false()
 
     def test_can_manage_user_keys(self):
         user = str(uuid.uuid4())
@@ -322,8 +331,8 @@ class TestGandalfClient(TestCase):
         archive.close()
         expect(content).to_equal(repo + ' another')
 
-        with expect.error_to_happen(RuntimeError, message="Could not retrieve tree. Status: 400. Error: Unsupported hook, valid options are: post-receive, pre-receive or update"):
-            self.gandalf.hook_add('invalid', repo, repo)
+        not_created = self.gandalf.hook_add('invalid', repo, repo)
+        expect(not_created).to_be_false()
 
     def test_can_diff_commits(self):
         repo = str(uuid.uuid4())
