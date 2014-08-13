@@ -65,6 +65,7 @@ gandalf_test: kill_gandalf_test
 	@mkdir -p /tmp/repositories-test
 	@mkdir -p /tmp/git/bare-template/hooks && touch /tmp/git/bare-template/hooks/{post-receive,pre-receive,update}
 	@gandalf-server -config="./tests/gandalf-test.conf" &
+	@while [[ "`curl -sv http://localhost:8001/healthcheck/ 2>&1 | grep 'WORKING'`" == "" ]]; do echo "Waiting for gandalf-server" && sleep 2;done
 
 # kill the test gandalft instance (localhost: 8001)
 kill_gandalf_test:

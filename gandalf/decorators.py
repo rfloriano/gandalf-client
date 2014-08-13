@@ -30,10 +30,10 @@ except ImportError:
 
 
 @coroutine
-def run_future(future, callback=None, **kwargs):
+def run_future(future, cb=None, **kwargs):
     result = yield future
-    if callback:
-        raise Return(callback(result, **kwargs))
+    if cb:
+        raise Return(cb(result, **kwargs))
     raise Return(result)
 
 
