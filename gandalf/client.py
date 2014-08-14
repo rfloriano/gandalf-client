@@ -1,9 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import sys
-import logging
-import urllib
 from six import string_types
 
 from gandalf.decorators import may_async, response_bool, response_json, response_text, response_archive
