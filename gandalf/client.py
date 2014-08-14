@@ -230,6 +230,15 @@ class GandalfClient(object):
             files={"zipfile": files},
         )
 
+    @response_json
+    @may_async
+    def repository_log(self, name, ref, total):
+        # router.Get("/repository/:name/logs", http.HandlerFunc(api.GetLog))
+        return self._request(
+            url=self._get_url('/repository/{0}/logs?ref={1}&total={2}'.format(name, ref, total)),
+            method="GET",
+        )
+
     @response_bool
     @may_async
     def user_add_key(self, name, keys):
