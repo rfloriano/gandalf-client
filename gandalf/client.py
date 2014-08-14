@@ -3,7 +3,9 @@
 
 from six import string_types
 
-from gandalf.decorators import may_async, response_bool, response_json, response_text, response_archive
+from gandalf.decorators import (
+    may_async, response_bool, response_json, response_text, response_archive
+)
 
 try:
     import ujson as json
