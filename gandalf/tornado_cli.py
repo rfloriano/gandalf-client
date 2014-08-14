@@ -1,18 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
-import sys
-import logging
-
-try:
-    import ujson as json
-except ImportError:
-    import json
-
-
 import tornado.gen as gen
-import tornado.httpclient
+import tornado.httpclient as httpclient
 
+import gandalf
 import gandalf.client as client
 
 
@@ -24,7 +15,10 @@ class AsyncTornadoGandalfClient(client.GandalfClient):
         if data:
             kwargs['body'] = data
 
-        response = yield self.client(url, *args, **kwargs)
+        try:
+            response = yield self.client(url, *args, **kwargs)
+        except httpclient.HTTPError as e:
+            raise gandalf.GandalfException(e.response)
         raise gen.Return(response)
 
     def get_code(self, response):
