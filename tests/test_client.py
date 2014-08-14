@@ -19,7 +19,10 @@ from Crypto.PublicKey import RSA
 
 import gandalf.client as client
 from tests.base import TestCase
-from tests.utils import create_repository, create_bare_repository, add_file_to_repo, tag_repo, branch_repo
+from tests.utils import (
+    create_repository, create_bare_repository, add_file_to_repo, tag_repo,
+    branch_repo
+)
 
 TMP_DIR = tempfile.gettempdir()
 HOOKS_DIR = '/tmp/git/bare-template/hooks'
