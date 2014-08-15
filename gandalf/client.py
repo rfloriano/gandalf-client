@@ -1,12 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import sys
-import logging
-import urllib
 from six import string_types
 
-from gandalf.decorators import may_async, response_bool, response_json, response_text, response_archive
+from gandalf.decorators import (
+    may_async, response_bool, response_json, response_text, response_archive
+)
 
 try:
     import ujson as json
@@ -229,6 +228,15 @@ class GandalfClient(object):
                 "branch": branch,
             },
             files={"zipfile": files},
+        )
+
+    @response_json
+    @may_async
+    def repository_log(self, name, ref, total):
+        # router.Get("/repository/:name/logs", http.HandlerFunc(api.GetLog))
+        return self._request(
+            url=self._get_url('/repository/{0}/logs?ref={1}&total={2}'.format(name, ref, total)),
+            method="GET",
         )
 
     @response_bool

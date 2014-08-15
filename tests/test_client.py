@@ -19,7 +19,10 @@ from Crypto.PublicKey import RSA
 
 import gandalf.client as client
 from tests.base import TestCase
-from tests.utils import create_repository, create_bare_repository, add_file_to_repo, tag_repo, branch_repo
+from tests.utils import (
+    create_repository, create_bare_repository, add_file_to_repo, tag_repo,
+    branch_repo
+)
 
 TMP_DIR = tempfile.gettempdir()
 HOOKS_DIR = '/tmp/git/bare-template/hooks'
@@ -388,3 +391,31 @@ index 404727f..bd82f1d 100644
 
         expect(json['_links']).to_include('zipArchive')
         expect(json['_links']).to_include('tarArchive')
+
+    def test_can_get_repository_log(self):
+        repo = str(uuid.uuid4())
+        create_repository(repo)
+
+        result = self.gandalf.repository_log(repo, "HEAD", 1)
+
+        expect(result).to_include('commits')
+        expect(result).to_include('next')
+
+        commits = result['commits']
+
+        expect(commits[0]).to_include('subject')
+        expect(commits[0]['subject']).to_equal('Initial commit')
+
+        expect(commits[0]).to_include('parent')
+        expect(commits[0]).to_include('ref')
+        expect(commits[0]).to_include('createdAt')
+
+        expect(commits[0]).to_include('committer')
+        expect(commits[0]['committer']).to_include('date')
+        expect(commits[0]['committer']).to_include('name')
+        expect(commits[0]['committer']).to_include('email')
+
+        expect(commits[0]).to_include('author')
+        expect(commits[0]['author']).to_include('date')
+        expect(commits[0]['author']).to_include('name')
+        expect(commits[0]['author']).to_include('email')
