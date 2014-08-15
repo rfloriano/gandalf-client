@@ -146,6 +146,24 @@ Example:
    gandalf.repository_delete('project-repository')
 
 
+repository_log
+--------------
+
+Returns a list of all commits into repository
+
+Arguments:
+
+* name: The repository's name
+* ref: The repository ref (commit, tag or branch)
+* total: The maximum number of items to retrieve
+
+Example:
+
+.. testcode:: repository_log
+
+   gandalf.repository_log('project-repository', 'HEAD', 1)
+
+
 user_add_key
 ------------
 
