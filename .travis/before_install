@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if `test $TRAVIS_BRANCH='stable'`; then
+if [ "$TRAVIS_BRANCH" = "stable" ]; then
     sudo apt-add-repository ppa:tsuru/ppa -y
     sudo apt-get update -qq
     sudo apt-get install gandalf-server -qq
