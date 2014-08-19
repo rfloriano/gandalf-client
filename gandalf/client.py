@@ -107,7 +107,7 @@ class GandalfClient(object):
 
         .. doctest:: repository_tree
 
-           >>> result = gandalf.repository_tree('tree-test', path='/some/path', ref='0.1.0')
+           >>> result = gandalf.repository_tree(repo_name, path='/some/path', ref='0.1.0')
            >>> result == [{
            ...     u'rawPath': u'some/path/file.txt',
            ...     u'path': u'some/path/file.txt',
