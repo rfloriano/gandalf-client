@@ -232,10 +232,10 @@ class GandalfClient(object):
 
     @response_json
     @may_async
-    def repository_log(self, name, ref, total):
+    def repository_log(self, name, ref, total, path=''):
         # router.Get("/repository/:name/logs", http.HandlerFunc(api.GetLog))
         return self._request(
-            url=self._get_url('/repository/{0}/logs?ref={1}&total={2}'.format(name, ref, total)),
+            url=self._get_url('/repository/{0}/logs?ref={1}&total={2}&path={3}'.format(name, ref, total, path)),
             method="GET",
         )
 
