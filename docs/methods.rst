@@ -158,12 +158,13 @@ Arguments:
 * name: The repository's name
 * ref: The repository ref (commit, tag or branch)
 * total: The maximum number of items to retrieve
+* path: Path to file or directory to filter log
 
 Example:
 
 .. testcode:: repository_log
 
-   gandalf.repository_log(repo_name, 'HEAD', 1)
+   gandalf.repository_log(repo_name, 'HEAD', 1, 'README.md')
 
 
 user_add_key
