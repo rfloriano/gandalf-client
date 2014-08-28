@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import logging
+
 from six import string_types
 
 from gandalf.decorators import (
@@ -27,7 +29,10 @@ class GandalfClient(object):
         return '{0}/{1}'.format(self.gandalf_server, route.lstrip('/'))
 
     def _request(self, *args, **kwargs):
-        return self.client(*args, **kwargs)
+        response = self.client(*args, **kwargs)
+        if self.get_code(response) != 200:
+            logging.warning(self.get_body(response))
+        return response
 
     def get_code(self, response):
         return response.status_code
