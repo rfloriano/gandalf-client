@@ -18,11 +18,11 @@ class AsyncTornadoGandalfClient(client.GandalfClient):
         try:
             response = yield self.client(url, *args, **kwargs)
         except httpclient.HTTPError as e:
-            raise gandalf.GandalfException(e.response)
+            raise gandalf.GandalfException(e.response, obj=self)
         raise gen.Return(response)
 
     def get_code(self, response):
         return response.code
 
-    def get_body(self, response):
-        return response.body.decode('utf-8')
+    def get_raw(self, response):
+        return response.body

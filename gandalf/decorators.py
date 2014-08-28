@@ -3,6 +3,8 @@
 import tarfile
 import zipfile
 
+from gandalf import GandalfException
+
 try:
     import ujson as json
 except ImportError:
@@ -37,6 +39,14 @@ def run_future(future, cb=None, **kwargs):
     raise Return(result)
 
 
+def _check_for_error(response, obj):
+    code = obj.get_code(response)
+    body = obj.get_body(response)
+    if code == 200:
+        return code, body
+    raise GandalfException(response=response, obj=obj)
+
+
 def process_future_as_bool(response, obj, text=''):
     code = obj.get_code(response)
     body = obj.get_body(response)
@@ -46,19 +56,27 @@ def process_future_as_bool(response, obj, text=''):
 
 
 def process_future_as_json(response, obj):
-    body = obj.get_body(response)
+    code, body = _check_for_error(response, obj)
     return json.loads(body)
 
 
 def process_future_as_text(response, obj):
-    return obj.get_body(response)
+    code, body = _check_for_error(response, obj)
+    return body
 
 
 def process_future_as_archive(response, obj, format):
+    code = obj.get_code(response)
+
+    if code != 200:
+        raise GandalfException(response=response, obj=obj)
+
+    archive = None
     if format == 'tar':
-        archive = tarfile.TarFile(fileobj=IO(response.content))
+        archive = tarfile.TarFile(fileobj=IO(obj.get_raw(response)))
     elif format == 'zip':
-        archive = zipfile.ZipFile(IO(response.content))
+        archive = zipfile.ZipFile(IO(obj.get_raw(response)))
+
     return archive
 
 

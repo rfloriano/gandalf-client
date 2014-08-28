@@ -37,8 +37,11 @@ class GandalfClient(object):
     def get_code(self, response):
         return response.status_code
 
+    def get_raw(self, response):
+        return response.content
+
     def get_body(self, response):
-        return response.content.decode('utf-8')
+        return self.get_raw(response).decode('utf-8')
 
     @response_bool
     @may_async

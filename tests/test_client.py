@@ -17,6 +17,7 @@ from preggy import expect
 import requests
 from Crypto.PublicKey import RSA
 
+from gandalf import GandalfException
 import gandalf.client as client
 from tests.base import TestCase
 from tests.utils import (
@@ -92,6 +93,16 @@ class TestGandalfClient(TestCase):
 
         self.gandalf.user_delete(user)
 
+    def test_return_no_keys_if_dont_have_keys(self):
+        user = str(uuid.uuid4())
+        key = get_key().decode('utf-8')
+        self.gandalf.user_new(user, {})
+
+        keys = self.gandalf.user_get_keys(user)
+        expect(keys).to_equal({})
+
+        self.gandalf.user_delete(user)
+
     def test_can_manage_repositories(self):
         user = str(uuid.uuid4())
         user2 = str(uuid.uuid4())
@@ -145,6 +156,11 @@ class TestGandalfClient(TestCase):
         expect(response['ssh_url']).to_equal('git@localhost:8001:%s.git' % repo)
         expect(response['name']).to_equal(repo)
         expect(response['public']).to_be_false()
+
+    def test_get_repository_raise_exception_if_repository_doesnt_exist(self):
+        repo = str(uuid.uuid4())
+        with expect.error_to_happen(GandalfException, message="not found (Gandalf server response HTTP 500)"):
+            self.gandalf.repository_get(repo)
 
     def test_can_get_repository_branches(self):
         repo = str(uuid.uuid4())
@@ -200,6 +216,14 @@ class TestGandalfClient(TestCase):
             u'hash': u'c5545f629c01a7597c9d4f9d5b68626062551622',
             u'permission': u'100644'
         })
+
+    def test_get_tree_of_non_existent_project_will_raise_exception(self):
+        error_message = "Error when trying to obtain tree for path" \
+                        " . on ref master of repository repository-fake " \
+                        "(Error when trying to obtain tree . on ref master of repository repository-fake " \
+                        "(Repository does not exist).). (Gandalf server response HTTP 400)"
+        with expect.error_to_happen(GandalfException, message=error_message):
+            tree = self.gandalf.repository_tree('repository-fake')
 
     def test_can_get_tree_with_path(self):
         create_repository('test2')
