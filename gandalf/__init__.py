@@ -15,7 +15,7 @@ class GandalfException(Exception):
         self.obj = obj
         if obj:
             status_code = obj.get_code(response)
-            content = obj.get_raw(response)
+            content = obj.get_raw(response).decode('utf-8')
         else:
             status_code = obj.status_code
             content = obj.content
