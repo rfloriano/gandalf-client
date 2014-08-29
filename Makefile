@@ -12,10 +12,9 @@ list:
 # required for list
 no_targets__:
 
-
 # install all dependencies (do not forget to create a virtualenv first)
 setup:
-	@pip install -U -e .\[tests\]
+	@pip install -U --allow-external pycrypto --allow-unverified pycrypto --process-dependency-links  -e .\[tests\]
 
 # test your application (tests in the tests/ directory)
 test: services_test unit doctest
@@ -27,12 +26,14 @@ doctest:
 
 unit:
 	@coverage run --branch `which nosetests` -vv --with-yanc -s tests/
-	@coverage report -m --fail-under=80
+	@coverage report -m --fail-under=70
+
+focus:
+	@coverage run --branch `which nosetests` -vv --with-yanc --logging-level=WARNING --with-focus -s tests/
 
 # show coverage in html format
 coverage-html: unit
 	@coverage html -d cover
-
 
 # get a mongodb instance up (localhost:3333)
 mongo: kill_mongo
@@ -60,7 +61,11 @@ kill_mongo_test:
 
 # get a gandalft instance up for your unit tests (localhost:8001)
 gandalf_test: kill_gandalf_test
+	@rm -f ./.git/index.lock
+	@mkdir -p /tmp/repositories-test
+	@mkdir -p /tmp/git/bare-template/hooks && touch /tmp/git/bare-template/hooks/{post-receive,pre-receive,update}
 	@gandalf-server -config="./tests/gandalf-test.conf" &
+	@while [[ "`curl -sv http://localhost:8001/healthcheck/ 2>&1 | grep 'WORKING'`" == "" ]]; do echo "Waiting for gandalf-server" && sleep 2;done
 
 # kill the test gandalft instance (localhost: 8001)
 kill_gandalf_test:
@@ -69,6 +74,9 @@ kill_gandalf_test:
 # run tests against all supported python versions
 tox:
 	@tox
+
+clean-docs:
+	@cd docs && make clean
 
 update-docs:
 	@cd docs && make html && open _build/html/index.html

@@ -15,6 +15,7 @@ from gandalf.version import __version__
 tests_require = [
     'mock',
     'nose',
+    'nose-focus',
     'coverage',
     'yanc',
     'preggy',
@@ -25,6 +26,8 @@ tests_require = [
     'tornado',
     'cow-framework',
     'requests',
+    'pycrypto==master',
+    'sphinx_rtd_theme',
 ]
 
 setup(
@@ -56,6 +59,7 @@ an incredible python package
     extras_require={
         'tests': tests_require,
     },
+    dependency_links=['https://github.com/dlitz/pycrypto/tarball/master#egg=pycrypto-master'],
     entry_points={
         'console_scripts': [
             # add cli scripts here in this form:

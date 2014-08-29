@@ -7,38 +7,61 @@ Available Methods
    from gandalf.client import GandalfClient
    gandalf = GandalfClient("localhost", 8001, requests.request)
 
-repository_new
---------------
+.. testsetup:: repository_tree, repository_log
 
-Create a new repository
+   import requests
+   from uuid import uuid4
+   from tests.utils import create_repository, add_file_to_repo, tag_repo
+   from gandalf.client import GandalfClient
 
-Arguments:
+   repo_name = "repository_test_%s" % uuid4()
+   gandalf = GandalfClient("localhost", 8001, requests.request)
+   create_repository(repo_name)
+   add_file_to_repo(repo_name, 'some/path/file.txt', 'file-content')
+   tag_repo(repo_name, '0.1.0')
+   add_file_to_repo(repo_name, 'some/path/other.txt', 'other-file-content')
 
-* name: The repository's name
-* users: List of users to grant access
-* ispublic: Flag to public repository (default: False)
+.. testsetup:: repository_new
 
-Example:
+   import requests
+   from uuid import uuid4
+   from gandalf.client import GandalfClient
+   from tests.utils import create_repository, add_file_to_repo, tag_repo
+   gandalf = GandalfClient("localhost", 8001, requests.request)
 
-.. testcode:: repository_new
+   repo_name = "newtest_%s" % uuid4()
 
-   gandalf.repository_new('my-project-repository', ['rfloriano'])
+.. testsetup:: user_new
 
-repository_get
---------------
+   import os
+   import requests
+   from uuid import uuid4
+   from gandalf.client import GandalfClient
+   from tests.utils import create_repository, add_file_to_repo, tag_repo
+   from Crypto.PublicKey import RSA
 
-Get repository data
+   gandalf = GandalfClient("localhost", 8001, requests.request)
 
-Arguments:
+   user_name = "user_%s" % uuid4()
+   my_ssh_public_key = RSA.generate(2048, os.urandom).exportKey('OpenSSH').decode('utf-8')
 
-* name: The repository's name
+.. testsetup:: repository_get
 
-Example:
+   import requests
+   from uuid import uuid4
+   from gandalf.client import GandalfClient
+   from tests.utils import create_repository, add_file_to_repo, tag_repo
+   gandalf = GandalfClient("localhost", 8001, requests.request)
 
-.. testcode:: repository_get
+   repo_name = "gettest_%s" % uuid4()
+   gandalf.repository_new(repo_name, ['rfloriano'], True)
 
-   gandalf.repository_get('my-project-repository')
+:mod:`client` Module
+====================
 
+.. automodule:: gandalf.client
+    :members:
+    :undoc-members:
 
 repository_rename
 -----------------
@@ -125,6 +148,25 @@ Example:
    gandalf.repository_delete('project-repository')
 
 
+repository_log
+--------------
+
+Returns a list of all commits into repository
+
+Arguments:
+
+* name: The repository's name
+* ref: The repository ref (commit, tag or branch)
+* total: The maximum number of items to retrieve
+* path: Path to file or directory to filter log
+
+Example:
+
+.. testcode:: repository_log
+
+   gandalf.repository_log(repo_name, 'HEAD', 1, 'README.md')
+
+
 user_add_key
 ------------
 
@@ -173,23 +215,6 @@ Example:
 .. testcode:: user_delete_key
 
    gandalf.user_delete_key('rfloriano', 'my-ssh-key-another')
-
-user_new
---------
-
-Create an new user
-
-Arguments:
-
-* name: The username
-* keys: Dictionary of public key to associate with user account (Ie: {'macbook-key': 'ssh-dss my-public-key== f@foo.bar'})
-
-Example:
-
-.. testcode:: user_new
-
-   gandalf.user_new('rfloriano', {'my-ssh-key': 'content-of-my-ssh-public-key'})
-
 
 user_delete
 -----------

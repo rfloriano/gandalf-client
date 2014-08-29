@@ -1,9 +1,13 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 import tornado.gen as gen
+import tornado.httpclient as httpclient
+
+import gandalf
 import gandalf.client as client
 
 
 class AsyncTornadoGandalfClient(client.GandalfClient):
-
     @gen.coroutine
     def _request(self, *args, **kwargs):
         url = kwargs.pop('url')
@@ -11,23 +15,14 @@ class AsyncTornadoGandalfClient(client.GandalfClient):
         if data:
             kwargs['body'] = data
 
-        response = yield self.client(url, *args, **kwargs)
+        try:
+            response = yield self.client(url, *args, **kwargs)
+        except httpclient.HTTPError as e:
+            raise gandalf.GandalfException(e.response, obj=self)
         raise gen.Return(response)
 
-    @gen.coroutine
-    def healthcheck(self):
-        response = yield self._request(
-            url=self._get_url('/healthcheck'),
-            method="GET",
-        )
+    def get_code(self, response):
+        return response.code
 
-        if response.code != 200:
-            raise gen.Return(False)
-
-        if hasattr(response, 'body'):
-            raise gen.Return(response.body.decode('utf-8') == 'WORKING')
-
-        if hasattr(response, 'text'):
-            raise gen.Return(response.text == 'WORKING')
-
-        raise gen.Return(False)
+    def get_raw(self, response):
+        return response.body
