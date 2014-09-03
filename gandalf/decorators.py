@@ -41,7 +41,12 @@ def run_future(future, cb=None, **kwargs):
 
 def _check_for_error(response, obj):
     code = obj.get_code(response)
-    body = obj.get_body(response)
+
+    if 'text' in response.headers.get('content-type', ''):
+        body = obj.get_body(response)
+    else:
+        body = obj.get_raw(response)
+
     if code == 200:
         return code, body
     raise GandalfException(response=response, obj=obj)
