@@ -41,7 +41,9 @@ class GandalfClient(object):
         return response.content
 
     def get_body(self, response):
-        return self.get_raw(response).decode('utf-8')
+        if 'text' in response.headers.get('content-type', ''):
+            return self.get_raw(response).decode('utf-8')
+        return self.get_raw(response)
 
     @response_bool
     @may_async
