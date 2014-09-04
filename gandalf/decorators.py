@@ -65,10 +65,17 @@ def process_future_as_json(response, obj):
     return json.loads(body)
 
 
-def process_future_as_text(response, obj):
-    code, body = _check_for_error(response, obj)
-    return body
+def process_future_as_raw(response, obj):
+    code = obj.get_code(response)
+    try:
+        body = obj.get_body(response)
+    except UnicodeDecodeError as e:
+        body = obj.get_raw(response)
 
+    if code == 200:
+        return body
+
+    raise GandalfException(response=response, obj=obj)
 
 def process_future_as_archive(response, obj, format):
     code = obj.get_code(response)
@@ -115,13 +122,13 @@ def response_json(f):
     return wrap
 
 
-def response_text(f):
+def response_raw(f):
     def wrap(*args, **kwargs):
         obj = args[0]
         response = f(*args, **kwargs)
         if is_future(response):
-            return run_future(response, process_future_as_text, obj=obj)
-        return process_future_as_text(response, obj)
+            return run_future(response, process_future_as_raw, obj=obj)
+        return process_future_as_raw(response, obj)
     return wrap
 
 

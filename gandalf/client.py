@@ -6,7 +6,7 @@ import logging
 from six import string_types
 
 from gandalf.decorators import (
-    may_async, response_bool, response_json, response_text, response_archive
+    may_async, response_bool, response_json, response_raw, response_archive
 )
 
 try:
@@ -174,7 +174,7 @@ class GandalfClient(object):
             method="GET",
         )
 
-    @response_text
+    @response_raw
     @may_async
     def repository_contents(self, name, path, ref='master'):
         # router.Get("/repository/:name/contents", http.HandlerFunc(api.GetFileContents))
@@ -210,7 +210,7 @@ class GandalfClient(object):
             method="GET",
         )
 
-    @response_text
+    @response_raw
     @may_async
     def repository_diff_commits(self, name, previous_commit, last_commit):
         # router.Get("/repository/:name/diff/commits", http.HandlerFunc(api.GetDiff))

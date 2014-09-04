@@ -41,6 +41,18 @@ def add_file_to_repo(repo, path, contents):
     ))
 
 
+def add_img_to_repo(repo, path, file_path):
+    repo_name = '%s.git' % repo
+    cmd = 'cd %s/%s && mkdir -p %s && cp "%s" %s && git add . > /dev/null && git commit -am "%s" > /dev/null' % (
+        ROOT, repo_name,
+        dirname(path),
+        file_path,
+        dirname(path),
+        path
+    )
+    os.system(cmd)
+
+
 def tag_repo(repo, tag):
     repo_name = '%s.git' % repo
     os.system('cd %s/%s && git tag %s > /dev/null' % (
