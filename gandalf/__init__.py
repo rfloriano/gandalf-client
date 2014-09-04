@@ -14,12 +14,12 @@ class GandalfException(Exception):
         self.response = response
         self.obj = obj
         if obj:
-            status_code = obj.get_code(response)
-            content = obj.get_raw(response).decode('utf-8')
+            self.status_code = obj.get_code(response)
+            self.content = obj.get_raw(response).decode('utf-8')
         else:
-            status_code = obj.status_code
-            content = obj.content
+            self.status_code = obj.status_code
+            self.content = obj.content
         super(GandalfException, self).__init__(
             '{0} (Gandalf server response HTTP {1})'
-            .format(content.strip("\n "), status_code)
+            .format(self.content.strip("\n "), self.status_code)
         )
