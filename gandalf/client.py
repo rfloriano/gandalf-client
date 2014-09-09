@@ -43,6 +43,14 @@ class GandalfClient(object):
     def get_body(self, response):
         return self.get_raw(response).decode('utf-8')
 
+    def get_content(self, response):
+        try:
+            body = self.get_body(response)
+        except UnicodeDecodeError:
+            body = self.get_raw(response)
+
+        return body
+
     @response_bool
     @may_async
     def repository_new(self, name, users, is_public=False):

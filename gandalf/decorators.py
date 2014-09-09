@@ -42,10 +42,7 @@ def run_future(future, cb=None, **kwargs):
 def _check_for_error(response, obj):
     code = obj.get_code(response)
 
-    if 'text' in response.headers.get('content-type', ''):
-        body = obj.get_body(response)
-    else:
-        body = obj.get_raw(response)
+    body = obj.get_content(response)
 
     if code == 200:
         return code, body
@@ -66,16 +63,9 @@ def process_future_as_json(response, obj):
 
 
 def process_future_as_raw(response, obj):
-    code = obj.get_code(response)
-    try:
-        body = obj.get_body(response)
-    except UnicodeDecodeError as e:
-        body = obj.get_raw(response)
+    code, body = _check_for_error(response, obj)
+    return body
 
-    if code == 200:
-        return body
-
-    raise GandalfException(response=response, obj=obj)
 
 def process_future_as_archive(response, obj, format):
     code = obj.get_code(response)
