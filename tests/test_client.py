@@ -124,6 +124,9 @@ class TestGandalfClient(TestCase):
         renamed = self.gandalf.repository_rename(repo, repo2)
         expect(renamed).to_be_true()
 
+        setted = self.gandalf.repository_set([user2], [repo2])
+        expect(setted).to_be_true()
+
         granted = self.gandalf.repository_grant([user2], [repo2])
         expect(granted).to_be_true()
 

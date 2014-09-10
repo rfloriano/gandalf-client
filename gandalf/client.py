@@ -155,6 +155,16 @@ class GandalfClient(object):
 
     @response_bool
     @may_async
+    def repository_set(self, users, repositories):
+        # router.Put("/repository/set", http.HandlerFunc(api.GrantAccess))
+        return self._request(
+            url=self._get_url('/repository/set'),
+            method="PUT",
+            data=json.dumps({'users': users, 'repositories': repositories})
+        )
+
+    @response_bool
+    @may_async
     def repository_grant(self, users, repositories):
         # router.Post("/repository/grant", http.HandlerFunc(api.GrantAccess))
         return self._request(

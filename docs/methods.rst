@@ -97,6 +97,22 @@ Example:
    gandalf.repository_grant(['rfloriano'], ['project-repository'])
 
 
+repository_set
+-----------------
+
+Set access to users in repositories
+
+Arguments:
+
+* users: List of all users to set accesss
+* repositories: List of repositories to set acess these users
+
+Example:
+
+.. testcode:: repository_set
+
+   gandalf.repository_set(['rfloriano'], ['project-repository'])
+
 repository_revoke
 -----------------
 
