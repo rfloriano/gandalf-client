@@ -67,17 +67,22 @@ def process_future_as_raw(response, obj):
     return body
 
 
-def process_future_as_archive(response, obj, format):
+def process_future_as_archive(response, obj, format, raw):
     code = obj.get_code(response)
 
     if code != 200:
         raise GandalfException(response=response, obj=obj)
 
     archive = None
+    content = obj.get_raw(response)
+
+    if raw:
+        return content
+
     if format == 'tar':
-        archive = tarfile.TarFile(fileobj=IO(obj.get_raw(response)))
+        archive = tarfile.TarFile(fileobj=IO(content))
     elif format == 'zip':
-        archive = zipfile.ZipFile(IO(obj.get_raw(response)))
+        archive = zipfile.ZipFile(IO(content))
 
     return archive
 
@@ -126,14 +131,15 @@ def response_archive(f):
     def wrap(*args, **kwargs):
         obj = args[0]
         format = kwargs.get('format')
+        raw = kwargs.get('raw')
         if not format and len(args) == 4:
             format = args[3]
         else:
             format = 'zip'
         response = f(*args, **kwargs)
         if is_future(response):
-            return run_future(response, process_future_as_archive, obj=obj, format=format)
-        return process_future_as_archive(response, obj, format)
+            return run_future(response, process_future_as_archive, obj=obj, format=format, raw=raw)
+        return process_future_as_archive(response, obj, format, raw)
     return wrap
 
 

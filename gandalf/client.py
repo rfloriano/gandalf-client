@@ -185,7 +185,7 @@ class GandalfClient(object):
 
     @response_archive
     @may_async
-    def repository_archive(self, name, ref, format='zip'):
+    def repository_archive(self, name, ref, format='zip', raw=False):
         # router.Get("/repository/:name/archive", http.HandlerFunc(api.GetArchive))
         return self._request(
             url=self._get_url('/repository/{0}/archive?ref={1}&format={2}'.format(name, ref, format)),
