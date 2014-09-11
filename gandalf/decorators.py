@@ -74,15 +74,15 @@ def process_future_as_archive(response, obj, format, raw):
         raise GandalfException(response=response, obj=obj)
 
     archive = None
-    content = obj.get_raw(response)
+    content = IO(obj.get_raw(response))
 
     if raw:
         return content
 
     if format == 'tar':
-        archive = tarfile.TarFile(fileobj=IO(content))
+        archive = tarfile.TarFile(fileobj=content)
     elif format == 'zip':
-        archive = zipfile.ZipFile(IO(content))
+        archive = zipfile.ZipFile(content)
 
     return archive
 
