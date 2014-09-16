@@ -155,6 +155,23 @@ class GandalfClient(object):
 
     @response_bool
     @may_async
+    def repository_update(self, repo_name, users=None, readonlyusers=None, ispublic=None):
+        # router.Put("/repository/:name", http.HandlerFunc(api.RenameRepository))
+        data = {}
+        if users:
+            data["users"] = users
+        if readonlyusers:
+            data["readonlyusers"] = readonlyusers
+        if ispublic:
+            data["ispublic"] = ispublic
+        return self._request(
+            url=self._get_url('/repository/{0}/update'.format(repo_name)),
+            method="PUT",
+            data=json.dumps(data)
+        )
+
+    @response_bool
+    @may_async
     def repository_set(self, users, repositories):
         # router.Put("/repository/set", http.HandlerFunc(api.GrantAccess))
         return self._request(

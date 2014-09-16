@@ -97,21 +97,26 @@ Example:
    gandalf.repository_grant(['rfloriano'], ['project-repository'])
 
 
-repository_set
+repository_update
 -----------------
 
-Set access to users in repositories
+Updates repository data
 
 Arguments:
 
-* users: List of all users to set accesss
-* repositories: List of repositories to set acess these users
+* repository: List of all users to set accesss
+
+Keywork arguments:
+
+* users: List of users to replace if set
+* readonlyusers: List of read only users to replace if set
+* ispublic: Set if repository is public (boolean)
 
 Example:
 
-.. testcode:: repository_set
+.. testcode:: repository_update
 
-   gandalf.repository_set(['rfloriano'], ['project-repository'])
+   gandalf.repository_set('rfloriano', users=['user1@gmail.com'], readonlyusers=[], ispublic=False)
 
 repository_revoke
 -----------------
