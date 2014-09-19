@@ -79,7 +79,7 @@ class TestTornadoGandalfClient(AsyncTestCase):
         expect(response).to_include('name')
         expect(response).to_include('public')
 
-        renamed = yield self.gandalf.repository_rename(repo, repo2)
+        renamed = yield self.gandalf.repository_update(repo, name=repo2)
         expect(renamed).to_be_true()
 
         granted = yield self.gandalf.repository_grant([user2], [repo2])

@@ -63,23 +63,6 @@ Available Methods
     :members:
     :undoc-members:
 
-repository_rename
------------------
-
-Rename a repository
-
-Arguments:
-
-* old_name: The actual repository's name
-* new_name: The new name to repository
-
-Example:
-
-.. testcode:: repository_rename
-
-   gandalf.repository_rename('my-project-repository', 'project-repository')
-
-
 repository_grant
 ----------------
 
@@ -116,7 +99,7 @@ Example:
 
 .. testcode:: repository_update
 
-   gandalf.repository_set('rfloriano', users=['user1@gmail.com'], readonlyusers=[], ispublic=False)
+   gandalf.repository_update('rfloriano', name='bla-bla', users=['user1@gmail.com'], readonlyusers=[], ispublic=False)
 
 repository_revoke
 -----------------
