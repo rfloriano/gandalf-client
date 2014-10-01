@@ -10,15 +10,11 @@
 
 
 class GandalfException(Exception):
-    def __init__(self, response=None, obj=None):
+    def __init__(self, response, obj):
         self.response = response
         self.obj = obj
-        if obj:
-            self.status_code = obj.get_code(response)
-            self.content = obj.get_content(response)
-        else:
-            self.status_code = obj.status_code
-            self.content = obj.content
+        self.status_code = obj.get_code(response)
+        self.content = obj.get_content(response)
         super(GandalfException, self).__init__(
             '{0} (Gandalf server response HTTP {1})'
             .format(self.content.strip("\n "), self.status_code)
