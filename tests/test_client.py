@@ -287,7 +287,7 @@ class TestGandalfClient(TestCase):
         img_path = os.path.abspath('tests/fixtures/thumbnail.jpg')
         add_img_to_repo(repo, 'some/path/thumbnail.jpg', img_path)
         content = self.gandalf.repository_contents(repo, 'some/path/thumbnail.jpg')
-        with open(img_path) as img_file:
+        with open(img_path, 'rb') as img_file:
             expect(content).to_equal(img_file.read())
 
     def test_can_get_repository_archive(self):
