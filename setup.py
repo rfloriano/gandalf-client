@@ -25,7 +25,6 @@ tests_require = [
     'sphinx',
     'tornado',
     'cow-framework',
-    'requests',
     'pycrypto==master',
     'sphinx_rtd_theme',
 ]
@@ -55,7 +54,9 @@ an incredible python package
     ],
     packages=find_packages(),
     include_package_data=False,
-    install_requires=[],
+    install_requires=[
+        'requests',
+    ],
     extras_require={
         'tests': tests_require,
     },
