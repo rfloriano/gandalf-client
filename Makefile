@@ -80,3 +80,6 @@ clean-docs:
 
 update-docs:
 	@cd docs && make html && open _build/html/index.html
+
+publish:
+	@python setup.py sdist upload -r pypi-local
