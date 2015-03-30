@@ -29,10 +29,14 @@ class GandalfClient(object):
         return '{0}/{1}'.format(self.gandalf_server, route.lstrip('/'))
 
     def _request(self, *args, **kwargs):
-        response = self.client(*args, **kwargs)
-        if self.get_code(response) != 200:
-            logging.warning(self.get_body(response))
-        return response
+        try:
+            response = self.client(*args, **kwargs)
+            if self.get_code(response) != 200:
+                logging.warning(self.get_body(response))
+            return response
+        except Exception as e:
+            logging.error(str(e))
+            return None
 
     def get_code(self, response):
         return response.status_code
