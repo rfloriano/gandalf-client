@@ -162,7 +162,7 @@ class TestGandalfClient(TestCase):
 
     def test_get_repository_raise_exception_if_repository_doesnt_exist(self):
         repo = str(uuid.uuid4())
-        with expect.error_to_happen(GandalfException, message="not found (Gandalf server response HTTP 500)"):
+        with expect.error_to_happen(GandalfException, message="repository not found (Gandalf server response HTTP 404)"):
             self.gandalf.repository_get(repo)
 
     def test_can_get_repository_branches(self):
