@@ -50,6 +50,8 @@ def _check_for_error(response, obj):
 
 
 def process_future_as_bool(response, obj, text=''):
+    if not response:
+        return
     code = obj.get_code(response)
     body = obj.get_body(response)
     if text:
