@@ -15,6 +15,7 @@ except ImportError:
 
 from preggy import expect
 import requests
+import requests_mock
 from Crypto.PublicKey import RSA
 
 from gandalf import GandalfException
@@ -184,6 +185,24 @@ class TestGandalfClient(TestCase):
         result = self.gandalf.repository_tags(repo)
         expect(result[0]).to_include('name')
         expect(result[0]['name']).to_equal('my-tag')
+
+    @requests_mock.Mocker()
+    def test_get_repository_tags_raise_exception_if_cannot_obtain_refs(self, m):
+        repo = str(uuid.uuid4())
+        url = 'http://localhost:8001/repository/%s' % repo
+        for_each_ref_out = (
+            u'9d2bc558ffbea2cac3800f764e7affa53f7dab73\t2.0.3rc2\tFulano de Tal\t'
+            u'<fulano@globo.com>\tThu Jul 10 15:19:41 2014 -0300\t'
+            u'Fulano de Tal\t<fulano@globo.com>\tThu Jul 10 15:19:41 2014 -0300\t'
+            u'Mantém configuração original da aplicação XPTO\n'
+            u'6f3a27b391d65e0526acd152db9a1c3747791ff1\t1.2.3-xpto\t\t\t\t\t\t\t'
+        )
+        error = u'Error when trying to obtain the refs of repository %s ' % repo
+        error += u'(Invalid git for-each-ref output [%s]).' % for_each_ref_out
+        message = u'Error when trying to obtain tags on ref  of repository %s (%s).' % (repo, error)
+        m.get(url, text=message, status_code=400)
+        with expect.error_to_happen(GandalfException):
+            self.gandalf.repository_get(repo)
 
     def test_can_get_healthcheck(self):
         response = self.gandalf.healthcheck()

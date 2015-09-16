@@ -16,6 +16,6 @@ class GandalfException(Exception):
         self.status_code = obj.get_code(response)
         self.content = obj.get_content(response)
         super(GandalfException, self).__init__(
-            '{0} (Gandalf server response HTTP {1})'
-            .format(self.content.strip("\n "), self.status_code)
+            u'{0} (Gandalf server response HTTP {1})'
+            .format(self.content.strip(u"\n "), self.status_code)
         )

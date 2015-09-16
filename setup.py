@@ -27,6 +27,7 @@ tests_require = [
     'cow-framework',
     'pycrypto==master',
     'sphinx_rtd_theme',
+    'requests-mock',
 ]
 
 setup(
