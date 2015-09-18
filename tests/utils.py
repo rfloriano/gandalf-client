@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import functools
 import os
 from os.path import join, exists, dirname
 import shutil
@@ -53,11 +54,16 @@ def add_img_to_repo(repo, path, file_path):
     os.system(cmd)
 
 
-def tag_repo(repo, tag):
+def tag_repo(repo, tag, annotation=None):
+    if annotation is not None:
+        annotation = u' -m "%s"' % annotation
+    else:
+        annotation = ''
     repo_name = '%s.git' % repo
-    os.system('cd %s/%s && git tag %s > /dev/null' % (
+    os.system(u'cd %s/%s && git tag %s%s > /dev/null' % (
         ROOT, repo_name,
-        tag
+        tag,
+        annotation
     ))
 
 
@@ -67,3 +73,22 @@ def branch_repo(repo, tag):
         ROOT, repo_name,
         tag
     ))
+
+
+class GitEnvironVarsInjector(object):
+
+    def __init__(self, which, name, email):
+        self.which = which.upper()
+        self.name = name
+        self.email = email
+
+    def __call__(self, func):
+        @functools.wraps(func)
+        def wrapped(*args, **kwargs):
+            os.putenv('GIT_%s_NAME' % self.which, self.name)
+            os.putenv('GIT_%s_EMAIL' % self.which, self.email)
+            return func(*args, **kwargs)
+        return wrapped
+
+with_git_author = functools.partial(GitEnvironVarsInjector, 'author')
+with_git_committer = functools.partial(GitEnvironVarsInjector, 'committer')

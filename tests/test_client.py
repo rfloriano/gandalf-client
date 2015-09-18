@@ -22,8 +22,8 @@ from gandalf import GandalfException
 import gandalf.client as client
 from tests.base import TestCase
 from tests.utils import (
-    create_repository, create_bare_repository, add_file_to_repo, add_img_to_repo, tag_repo,
-    branch_repo
+    create_repository, create_bare_repository, add_file_to_repo, add_img_to_repo,
+    tag_repo, branch_repo, with_git_author, with_git_committer
 )
 
 TMP_DIR = tempfile.gettempdir()
@@ -185,6 +185,96 @@ class TestGandalfClient(TestCase):
         result = self.gandalf.repository_tags(repo)
         expect(result[0]).to_include('name')
         expect(result[0]['name']).to_equal('my-tag')
+
+    @with_git_author('author', 'author@globo.com')
+    def test_can_get_repository_tags_with_git_author(self):
+        repo = str(uuid.uuid4())
+        create_repository(repo)
+        tag_repo(repo, 'my-tag')
+
+        result = self.gandalf.repository_tags(repo)
+        expect(result[0]).to_include('name')
+        expect(result[0]['name']).to_equal('my-tag')
+        expect(result[0]).to_include('author')
+        expect(result[0]['author']['name']).to_equal('author')
+        expect(result[0]['author']['email']).to_equal('<author@globo.com>')
+
+    @with_git_committer('committer', 'committer@globo.com')
+    def test_can_get_repository_tags_with_git_committer(self):
+        repo = str(uuid.uuid4())
+        create_repository(repo)
+        tag_repo(repo, 'my-tag')
+
+        result = self.gandalf.repository_tags(repo)
+        expect(result[0]).to_include('name')
+        expect(result[0]['name']).to_equal('my-tag')
+        expect(result[0]).to_include('committer')
+        expect(result[0]['committer']['name']).to_equal('committer')
+        expect(result[0]['committer']['email']).to_equal('<committer@globo.com>')
+
+    @with_git_author('author', 'author@globo.com')
+    @with_git_committer('committer', 'committer@globo.com')
+    def test_can_get_repository_tags_with_git_author_and_committer(self):
+        repo = str(uuid.uuid4())
+        create_repository(repo)
+        tag_repo(repo, 'my-tag')
+
+        result = self.gandalf.repository_tags(repo)
+        expect(result[0]).to_include('name')
+        expect(result[0]['name']).to_equal('my-tag')
+        expect(result[0]).to_include('author')
+        expect(result[0]['author']['name']).to_equal('author')
+        expect(result[0]['author']['email']).to_equal('<author@globo.com>')
+        expect(result[0]).to_include('committer')
+        expect(result[0]['committer']['name']).to_equal('committer')
+        expect(result[0]['committer']['email']).to_equal('<committer@globo.com>')
+        expect(result[0]).to_include('tagger')
+        expect(result[0]['tagger']['name']).to_be_empty()
+        expect(result[0]['tagger']['email']).to_be_empty()
+
+    def test_can_get_repository_tags_annotated(self):
+        repo = str(uuid.uuid4())
+        create_repository(repo)
+        tag_repo(repo, 'my-annotated-tag', 'annotated tag')
+
+        result = self.gandalf.repository_tags(repo)
+        expect(result[0]).to_include('name')
+        expect(result[0]['name']).to_equal('my-annotated-tag')
+        expect(result[0]).to_include('subject')
+        expect(result[0]['subject']).to_equal('annotated tag')
+
+    @with_git_author('author', 'author@globo.com')
+    @with_git_committer('tagger', 'tagger@globo.com')
+    def test_can_get_repository_tags_annotated_with_git_tagger(self):
+        repo = str(uuid.uuid4())
+        create_repository(repo)
+        tag_repo(repo, 'my-annotated-tag', 'annotated tag')
+
+        result = self.gandalf.repository_tags(repo)
+        expect(result[0]).to_include('name')
+        expect(result[0]['name']).to_equal('my-annotated-tag')
+        expect(result[0]).to_include('subject')
+        expect(result[0]['subject']).to_equal('annotated tag')
+        expect(result[0]).to_include('tagger')
+        expect(result[0]['tagger']['name']).to_equal('tagger')
+        expect(result[0]['tagger']['email']).to_equal('<tagger@globo.com>')
+        expect(result[0]).to_include('author')
+        expect(result[0]['author']['name']).to_be_empty()
+        expect(result[0]['author']['email']).to_be_empty()
+        expect(result[0]).to_include('committer')
+        expect(result[0]['committer']['name']).to_be_empty()
+        expect(result[0]['committer']['email']).to_be_empty()
+
+    def test_can_get_repository_tags_annotated_no_message(self):
+        repo = str(uuid.uuid4())
+        create_repository(repo)
+        tag_repo(repo, 'my-annotated-tag', '')
+
+        result = self.gandalf.repository_tags(repo)
+        expect(result[0]).to_include('name')
+        expect(result[0]['name']).to_equal('my-annotated-tag')
+        expect(result[0]).to_include('subject')
+        expect(result[0]['subject']).to_equal('')
 
     @requests_mock.Mocker()
     def test_get_repository_tags_raise_exception_if_cannot_obtain_refs(self, m):
