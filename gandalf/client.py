@@ -26,7 +26,7 @@ class GandalfClient(object):
         return 'http://{0}:{1}'.format(self.host, self.port)
 
     def _get_url(self, route):
-        return '{0}/{1}'.format(self.gandalf_server, route.lstrip('/'))
+        return u'{0}/{1}'.format(self.gandalf_server, route.lstrip('/'))
 
     def _request(self, *args, **kwargs):
         try:
@@ -191,7 +191,7 @@ class GandalfClient(object):
     def repository_contents(self, name, path, ref='master'):
         # router.Get("/repository/:name/contents", http.HandlerFunc(api.GetFileContents))
         return self._request(
-            url=self._get_url('/repository/{0}/contents?path={1}&ref={2}'.format(name, path, ref)),
+            url=self._get_url(u'/repository/{0}/contents?path={1}&ref={2}'.format(name, path, ref)),
             method="GET",
         )
 
@@ -255,7 +255,7 @@ class GandalfClient(object):
     def repository_log(self, name, ref, total, path=''):
         # router.Get("/repository/:name/logs", http.HandlerFunc(api.GetLog))
         return self._request(
-            url=self._get_url('/repository/{0}/logs?ref={1}&total={2}&path={3}'.format(name, ref, total, path)),
+            url=self._get_url(u'/repository/{0}/logs?ref={1}&total={2}&path={3}'.format(name, ref, total, path)),
             method="GET",
         )
 

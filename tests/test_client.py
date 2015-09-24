@@ -390,6 +390,19 @@ class TestGandalfClient(TestCase):
         content = self.gandalf.repository_contents(repo, 'some/path/doge.txt')
         expect(content).to_equal('OTHER TEST\n')
 
+    def test_can_get_repository_contents_with_special_characters(self):
+        repo = str(uuid.uuid4())
+        create_repository(repo)
+        add_file_to_repo(repo, 'some/path/doéã.txt', 'FOO BAR')
+        tag_repo(repo, '0.1.0')
+        add_file_to_repo(repo, 'some/path/doéã.txt', 'OTHER TEST')
+
+        content = self.gandalf.repository_contents(repo, u'some/path/doéã.txt', '0.1.0')
+        expect(content).to_equal('FOO BAR\n')
+
+        content = self.gandalf.repository_contents(repo, u'some/path/doéã.txt')
+        expect(content).to_equal('OTHER TEST\n')
+
     def test_can_get_repository_contents_of_a_image(self):
         repo = str(uuid.uuid4())
         create_repository(repo)
@@ -416,6 +429,27 @@ class TestGandalfClient(TestCase):
         zip_ = self.gandalf.repository_archive(repo, '0.1.0')
         zip_.extract('{0}-0.1.0/some/path/doge.txt'.format(repo), TMP_DIR)
         archive = open(os.path.join(TMP_DIR, '{0}-0.1.0/some/path/doge.txt'.format(repo)), 'r')
+        content = archive.read()
+        archive.close()
+        expect(content).to_equal('FOO BAR\n')
+
+    def test_can_get_repository_archive_with_special_characters(self):
+        repo = str(uuid.uuid4())
+        create_repository(repo)
+        add_file_to_repo(repo, 'some/path/doéã.txt', 'FOO BAR')
+        tag_repo(repo, '0.1.0')
+        add_file_to_repo(repo, 'some/path/doéã.txt', 'OTHER TEST')
+
+        tar = self.gandalf.repository_archive(repo, 'master', 'tar')
+        tar.extract('{0}-master/some/path/doéã.txt'.format(repo), TMP_DIR)
+        archive = open(os.path.join(TMP_DIR, u'{0}-master/some/path/doéã.txt'.format(repo)), 'r')
+        content = archive.read()
+        archive.close()
+        expect(content).to_equal('OTHER TEST\n')
+
+        zip_ = self.gandalf.repository_archive(repo, '0.1.0')
+        zip_.extract(u'{0}-0.1.0/some/path/doéã.txt'.format(repo), TMP_DIR)
+        archive = open(os.path.join(TMP_DIR, u'{0}-0.1.0/some/path/doéã.txt'.format(repo)), 'r')
         content = archive.read()
         archive.close()
         expect(content).to_equal('FOO BAR\n')
@@ -578,6 +612,36 @@ index 404727f..bd82f1d 100644
 
         expect(commits[0]).to_include('subject')
         expect(commits[0]['subject']).to_equal('Initial commit')
+
+        expect(commits[0]).to_include('parent')
+        expect(commits[0]).to_include('ref')
+        expect(commits[0]).to_include('createdAt')
+
+        expect(commits[0]).to_include('committer')
+        expect(commits[0]['committer']).to_include('date')
+        expect(commits[0]['committer']).to_include('name')
+        expect(commits[0]['committer']).to_include('email')
+
+        expect(commits[0]).to_include('author')
+        expect(commits[0]['author']).to_include('date')
+        expect(commits[0]['author']).to_include('name')
+        expect(commits[0]['author']).to_include('email')
+
+    def test_can_get_repository_log_with_path_with_special_characters(self):
+        repo = str(uuid.uuid4())
+        create_repository(repo)
+        add_file_to_repo(repo, 'some/path/doéã.txt', 'FOO BAR')
+        add_file_to_repo(repo, 'some/path/doéã.txt', 'wow')
+
+        result = self.gandalf.repository_log(repo, 'HEAD', 1, u'some/path/doéã.txt')
+
+        expect(result).to_include('commits')
+        expect(result).to_include('next')
+
+        commits = result['commits']
+
+        expect(commits[0]).to_include('subject')
+        expect(commits[0]['subject']).to_equal(u'some/path/doéã.txt')
 
         expect(commits[0]).to_include('parent')
         expect(commits[0]).to_include('ref')
