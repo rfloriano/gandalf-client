@@ -171,11 +171,14 @@ class TestGandalfClient(TestCase):
         create_repository(repo)
         branch_repo(repo, 'branch-test')
 
-        result = self.gandalf.repository_branches(repo)
-        expect(result[0]).to_include('name')
-        expect(result[0]['name']).to_equal('branch-test')
-        expect(result[1]).to_include('name')
-        expect(result[1]['name']).to_equal('master')
+        results = self.gandalf.repository_branches(repo)
+        # there`s 2 branches: 'master' and 'branch-test'
+        branches = ['branch-test', 'master']
+        for i in range(len(results)):
+            expect(results[i]).to_include('name')
+            expect(branches).to_include(results[i]['name'])
+            branches.remove(results[i]['name'])
+        expect(branches).to_length(0)
 
     def test_can_get_repository_tags(self):
         repo = str(uuid.uuid4())
